@@ -29,16 +29,6 @@
 #include <sensor_fingerposition.hpp>
 #include <ads7138_registers.hpp>
 
-#ifdef __arm__
-#include "Arduino.h"
-#define sleep(ms) delay(ms)
-#elif _WIN32
-#include<windows.h>
-#define sleep(ms) Sleep(ms)
-#else
-#define sleep(ms) usleep(1000*ms)
-#endif  // __arm__
-
 void FingerPositionSensor::Initialize(I2CDriver* handle) {
   i2c_handle_ = handle;
   i2c_handle_->ChangeAddress(kSensorI2CAddress_);

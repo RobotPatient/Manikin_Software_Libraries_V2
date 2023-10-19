@@ -16,6 +16,6 @@ add_library(sensor_ventilation sensor_drivers/sensor_ventilation/src/sensor_vent
 target_include_directories(sensor_ventilation PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_ventilation/src/)
 target_link_libraries(sensor_ventilation i2c_wrapper)
 
-add_library(sensor_fingerposition sensor_drivers/sensor_compression/src/sensor_compression.cpp)
+add_library(sensor_fingerposition sensor_drivers/sensor_fingerposition/src/sensor_fingerposition.cpp)
 target_include_directories(sensor_fingerposition PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_fingerposition/src/)
 target_link_libraries(sensor_fingerposition i2c_wrapper)

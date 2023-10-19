@@ -26,7 +26,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
 ***********************************************************************************************/
 
-#include <sensor_differentialpressure.hpp>
+#include <sensor_ventilation.hpp>
 #include <sdp810_registers.hpp>
 
 void DifferentialPressureSensor::Initialize(I2CDriver* handle) {
