@@ -15,13 +15,15 @@ typedef struct {
 
 void fram_init(fram_dev_t fram_device);
 
+void fram_wren(fram_dev_t fram_device);
+
 void fram_write_byte(fram_dev_t fram_device, uint32_t addr, uint8_t byte);
 
-void fram_write_bytes(fram_dev_t fram_device, uint32_t addr, uint8_t* bytes, size_t amount_of_bytes);
+void fram_write_bytes(fram_dev_t fram_device, uint32_t addr, const uint8_t* bytes, size_t amount_of_bytes);
 
-void fram_read_byte(fram_dev_t fram_device, uint8_t* read_buffer);
+void fram_read_byte(fram_dev_t fram_device, uint32_t addr, uint8_t* read_buffer);
 
-void fram_read_bytes(fram_dev_t fram_device, uint8_t* read_buffer, size_t amount_of_bytes);
+void fram_read_bytes(fram_dev_t fram_device, uint32_t addr, uint8_t* read_buffer, size_t amount_of_bytes);
 
 void fram_deinit(fram_dev_t fram_device);
 
