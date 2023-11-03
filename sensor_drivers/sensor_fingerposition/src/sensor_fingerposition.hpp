@@ -79,6 +79,15 @@ class FingerPositionSensor : public UniversalSensor {
     Uninitialize();
   }
 
+  /**
+    * @brief Get the availability status of the sensor
+    *
+    * @return Availability status
+    */
+  const bool Available() override {
+    return false;  // TODO
+  }
+
  private:
   const uint8_t SensorType_ = 0x03;
   const uint8_t kSensorI2CAddress_ = kAds7138Addr;
@@ -100,4 +109,7 @@ class FingerPositionSensor : public UniversalSensor {
   void reindexArray(uint16_t *dest, uint16_t *original);
   void getReading(uint8_t *buf);
 };
+
+typedef FingerPositionSensor CompressionPositionSensor;
+
 #endif  // SENSOR_FINGERPOSITION_HPP_

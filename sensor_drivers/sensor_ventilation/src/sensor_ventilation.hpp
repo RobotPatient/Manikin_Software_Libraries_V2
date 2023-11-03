@@ -62,6 +62,15 @@ class DifferentialPressureSensor : public UniversalSensor {
   SensorData GetSensorData() override;
 
   /**
+  * @brief Get the availability status of the sensor
+  *
+  * @return Availability status
+  */
+  const bool Available() override {
+    return false;  // TODO
+  }
+
+  /**
    * @brief Uninitialize the sensor
   */
   void Uninitialize() override;
@@ -84,4 +93,7 @@ class DifferentialPressureSensor : public UniversalSensor {
   void ReadSdp810();
   int16_t GetRawSDP810();
 };
+
+typedef DifferentialPressureSensor VentilationSensor;
+
 #endif  // SENSOR_DIFFERENTIALPRESSURE_HPP_

@@ -36,13 +36,25 @@ inline constexpr uint8_t kMaxAmountOfSensorBytes = 8;
  * @brief Sensordata struct contains the read sensor data with samplenum and sensortype
  * 
  * @note buffer contains the raw sensordata
+ *
  */
 typedef struct SensorData {
-  uint16_t sample_num;
-  uint8_t sensor_id;
-  uint16_t buffer[kMaxAmountOfSensorBytes];
-  uint8_t num_of_bytes;
+  uint16_t sample_num;                          /**< index / counter */
+  uint16_t sensor_id;                           /**< high byte: real sensor_id as defined in SensorType enum, low byte: subsensor (e.g. 0..8 for finger position sensor) */
+  uint16_t buffer[kMaxAmountOfSensorBytes];     /**< actual data of sensor */
+  uint8_t num_of_bytes;                         /**< number of bytes as stored in the buffer */
 } SensorData_t;
+
+enum BareSensorType {
+    NO_SENSOR,
+    UNKNOWN_SENSOR,
+    COMPRESSION_SENSOR,
+    VENTILATION_SENSOR,
+    COMPRESSION_POSITION_SENSOR,
+    HEAD_POSITION_SENSOR,
+    BODY_POSITION_SENSOR
+};
+
 
 class UniversalSensor {
  public:
@@ -73,6 +85,11 @@ class UniversalSensor {
    * @brief Uninitialize the sensor
   */
   virtual void Uninitialize() = 0;
+
+  /**
+    * @brief Check is sensor is available based on i2c RXNACK status
+  */
+  virtual const bool Available() = 0;
 };
 
 #endif  // SENSOR_BASE_H

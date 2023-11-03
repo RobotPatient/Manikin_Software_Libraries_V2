@@ -93,6 +93,13 @@ class CompressionSensor : public UniversalSensor {
   SensorData GetSensorData() override;
 
   /**
+    * @brief Get the availability status of the sensor
+    *
+    * @return Availability status
+    */
+  const bool Available() override;
+
+  /**
   * @brief Uninitialize the sensor
   */
   void Uninitialize() override;
@@ -113,5 +120,6 @@ class CompressionSensor : public UniversalSensor {
   float GetAmbientLight(VL6180xAlsGain vl6180x_als_gain);
   void GetIdentification(struct VL6180xIdentification *dest);
   uint8_t ChangeAddress(uint8_t old_address, uint8_t new_address);
+
 };
 #endif  // SENSOR_COMPRESSION_HPP_

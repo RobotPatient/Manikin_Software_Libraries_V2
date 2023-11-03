@@ -226,7 +226,7 @@ uint8_t CompressionSensor::ChangeAddress(uint8_t old_address,
                                          uint8_t new_address) {
   // NOTICE:  IT APPEARS THAT CHANGING THE ADDRESS IS NOT STORED IN
   //          NON-VOLATILE MEMORY
-  //  POWER CYCLING THE DEVICE REVERTS ADDRESS BACK TO 0X29
+  //  POWER CYCLING THE DEVICE REVERTS ADDRESS BACK TO 0x29
   if (old_address == new_address)
     return old_address;
   if (new_address > 127)
@@ -235,6 +235,15 @@ uint8_t CompressionSensor::ChangeAddress(uint8_t old_address,
   i2c_handle_->WriteReg(kVl6180Xi2CSlaveDeviceAddress, new_address);
   sensor_i2c_address_ = new_address;
   return i2c_handle_->ReadReg(kVl6180Xi2CSlaveDeviceAddress);
+}
+
+/**
+    * @brief Get the availability status of the sensor
+    *
+    * @return Availability status
+    */
+const bool CompressionSensor::Available() {
+  return i2c_handle_->SensorAvailable();
 }
 
 void CompressionSensor::Uninitialize() {}
