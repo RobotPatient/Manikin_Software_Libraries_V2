@@ -84,4 +84,7 @@ class DifferentialPressureSensor : public UniversalSensor {
   void ReadSdp810();
   int16_t GetRawSDP810();
 };
+
+typedef DifferentialPressureSensor VentilationSensor;
+
 #endif  // SENSOR_DIFFERENTIALPRESSURE_HPP_

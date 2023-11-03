@@ -226,7 +226,7 @@ uint8_t CompressionSensor::ChangeAddress(uint8_t old_address,
                                          uint8_t new_address) {
   // NOTICE:  IT APPEARS THAT CHANGING THE ADDRESS IS NOT STORED IN
   //          NON-VOLATILE MEMORY
-  //  POWER CYCLING THE DEVICE REVERTS ADDRESS BACK TO 0X29
+  //  POWER CYCLING THE DEVICE REVERTS ADDRESS BACK TO 0x29
   if (old_address == new_address)
     return old_address;
   if (new_address > 127)
