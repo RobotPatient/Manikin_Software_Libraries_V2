@@ -237,5 +237,14 @@ uint8_t CompressionSensor::ChangeAddress(uint8_t old_address,
   return i2c_handle_->ReadReg(kVl6180Xi2CSlaveDeviceAddress);
 }
 
+/**
+    * @brief Get the availability status of the sensor
+    *
+    * @return Availability status
+    */
+const bool CompressionSensor::Available() {
+  return i2c_handle_->SensorAvailable();
+}
+
 void CompressionSensor::Uninitialize() {}
 

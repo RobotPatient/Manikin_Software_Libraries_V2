@@ -62,6 +62,15 @@ class DifferentialPressureSensor : public UniversalSensor {
   SensorData GetSensorData() override;
 
   /**
+  * @brief Get the availability status of the sensor
+  *
+  * @return Availability status
+  */
+  const bool Available() override {
+    return false;  // TODO
+  }
+
+  /**
    * @brief Uninitialize the sensor
   */
   void Uninitialize() override;

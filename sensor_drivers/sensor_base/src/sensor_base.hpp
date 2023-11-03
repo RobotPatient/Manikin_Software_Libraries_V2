@@ -55,11 +55,6 @@ enum BareSensorType {
     BODY_POSITION_SENSOR
 };
 
-/*
-uint8_t getSensorBaseType() {
-    //
-}*/
-
 
 class UniversalSensor {
  public:
@@ -90,6 +85,11 @@ class UniversalSensor {
    * @brief Uninitialize the sensor
   */
   virtual void Uninitialize() = 0;
+
+  /**
+    * @brief Check is sensor is available based on i2c RXNACK status
+  */
+  virtual const bool Available() = 0;
 };
 
 #endif  // SENSOR_BASE_H
