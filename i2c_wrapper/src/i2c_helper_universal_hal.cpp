@@ -97,6 +97,12 @@ void I2CDriver::UpdateStatus() {
   i2c_rx_state_ = i2c_host_get_rx_state(i2c_peripheral_);
   i2c_bus_state_ = i2c_host_get_bus_state(i2c_peripheral_);
   i2c_bus_error_state_ = i2c_host_get_bus_error_state(i2c_peripheral_);
+  i2c_bus_arbitration_state_ = i2c_host_get_arbitration_state(i2c_peripheral_);
+  i2c_transaction_len_error_ = i2c_host_get_lenerr_state(i2c_peripheral_);
+  i2c_client_timeout_ = i2c_host_get_sexttout_state(i2c_peripheral_);
+  i2c_host_timeout_ = i2c_host_get_mexttout_state(i2c_peripheral_);
+  i2c_clock_low_timeout_ = i2c_host_get_lowtout_state(i2c_peripheral_);
+  i2c_clock_hold_timeout_ = i2c_host_get_clkhold_state(i2c_peripheral_);
 }
 
 bool I2CDriver::SensorAvailable() {

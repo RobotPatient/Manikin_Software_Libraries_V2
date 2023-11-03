@@ -79,8 +79,12 @@ class I2CDriver {
   i2c_state_t i2c_rx_state_;
   i2c_state_t i2c_bus_state_;
   i2c_state_t i2c_bus_error_state_;
-
-
+  i2c_state_t i2c_bus_arbitration_state_;
+  i2c_state_t i2c_transaction_len_error_;
+  i2c_state_t i2c_client_timeout_;
+  i2c_state_t i2c_host_timeout_;
+  i2c_state_t i2c_clock_hold_timeout_;
+  i2c_state_t i2c_clock_low_timeout_;
 
 };
 
