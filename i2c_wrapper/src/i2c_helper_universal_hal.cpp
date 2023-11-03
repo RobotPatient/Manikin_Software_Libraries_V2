@@ -28,6 +28,7 @@
 
 #include "hal_i2c_host.h"
 #include <i2c_helper.hpp>
+#include <i2c_common/i2c_types.h>
 
 constexpr uint8_t GetUpperByte(uint16_t number) {
   return (number >> 8) & 0xff;
@@ -38,11 +39,11 @@ constexpr uint8_t GetLowerByte(uint16_t number) {
 }
 
 void I2CDriver::Init() {
-i2c_host_init(i2c_peripheral_, I2C_CLK_SOURCE_USE_DEFAULT, 48000000, speed_, I2C_EXTRA_OPT_NONE);
+  i2c_host_init(i2c_peripheral_, I2C_CLK_SOURCE_USE_DEFAULT, 48000000, speed_, I2C_EXTRA_OPT_NONE);
 }
 
 void I2CDriver::ChangeAddress(uint8_t new_i2c_address) {
-i2c_addr_ = new_i2c_address;
+  i2c_addr_ = new_i2c_address;
 }
 
 void I2CDriver::WriteReg(uint16_t reg, uint8_t data) {
@@ -90,4 +91,15 @@ void I2CDriver::ReadBytes(uint8_t *buffer, uint8_t num_of_bytes) {
 
 void I2CDriver::SendBytes(uint8_t *buffer, uint8_t num_of_bytes) {
   i2c_host_write_blocking(i2c_peripheral_, i2c_addr_, buffer, num_of_bytes, I2C_STOP_BIT);
+}
+
+void I2CDriver::UpdateStatus() {
+  i2c_rx_state_ = i2c_host_get_rx_state(i2c_peripheral_);
+  i2c_bus_state_ = i2c_host_get_bus_state(i2c_peripheral_);
+  i2c_bus_error_state_ = i2c_host_get_bus_error_state(i2c_peripheral_);
+}
+
+bool I2CDriver::SensorAvailable() {
+  UpdateStatus();
+  return i2c_rx_state_ == I2C_RX_ACK;
 }

@@ -32,6 +32,7 @@
 
 #ifdef __arm__
 #include "i2c_helper_platform_specific.hpp"
+#include <i2c_common/i2c_types.h>
 #else
 #include <i2c_peripheral_mock.hpp>
 #define I2C_PERIPHERAL_T I2CPeripheralMock*
@@ -40,6 +41,7 @@
 typedef enum {
   kI2cSpeed_100KHz = 100000, kI2cSpeed_400KHz = 400000,
 } I2CSpeed;
+
 
 class I2CDriver {
  public:
@@ -64,10 +66,22 @@ class I2CDriver {
   void SendBytes(uint8_t *buffer, uint8_t num_of_bytes);
   void ChangeAddress(uint8_t new_i2c_address);
 
+  bool SensorAvailable();
  private:
+  void UpdateStatus();
+
+
   uint8_t i2c_addr_;
   I2C_PERIPHERAL_T i2c_peripheral_;
   I2CSpeed speed_;
+
+
+  i2c_state_t i2c_rx_state_;
+  i2c_state_t i2c_bus_state_;
+  i2c_state_t i2c_bus_error_state_;
+
+
+
 };
 
 #endif  // I2C_HELPER_HPP_
