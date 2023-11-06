@@ -32,7 +32,6 @@
 
 #ifdef __arm__
 #include "i2c_helper_platform_specific.hpp"
-#include <i2c_common/i2c_types.h>
 #else
 #include <i2c_peripheral_mock.hpp>
 #define I2C_PERIPHERAL_T I2CPeripheralMock*
@@ -68,23 +67,10 @@ class I2CDriver {
 
   bool SensorAvailable();
  private:
-  void UpdateStatus();
-
 
   uint8_t i2c_addr_;
   I2C_PERIPHERAL_T i2c_peripheral_;
   I2CSpeed speed_;
-
-
-  i2c_state_t i2c_rx_state_;
-  i2c_state_t i2c_bus_state_;
-  i2c_state_t i2c_bus_error_state_;
-  i2c_state_t i2c_bus_arbitration_state_;
-  i2c_state_t i2c_transaction_len_error_;
-  i2c_state_t i2c_client_timeout_;
-  i2c_state_t i2c_host_timeout_;
-  i2c_state_t i2c_clock_hold_timeout_;
-  i2c_state_t i2c_clock_low_timeout_;
 
 };
 

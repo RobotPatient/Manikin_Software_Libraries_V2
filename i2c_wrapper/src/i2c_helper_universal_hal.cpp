@@ -27,8 +27,7 @@
 ***********************************************************************************************/
 
 #include "hal_i2c_host.h"
-#include <i2c_helper.hpp>
-#include <i2c_common/i2c_types.h>
+#include "i2c_helper.hpp"
 
 constexpr uint8_t GetUpperByte(uint16_t number) {
   return (number >> 8) & 0xff;
@@ -93,19 +92,8 @@ void I2CDriver::SendBytes(uint8_t *buffer, uint8_t num_of_bytes) {
   i2c_host_write_blocking(i2c_peripheral_, i2c_addr_, buffer, num_of_bytes, I2C_STOP_BIT);
 }
 
-void I2CDriver::UpdateStatus() {
-  i2c_rx_state_ = i2c_host_get_rx_state(i2c_peripheral_);
-  i2c_bus_state_ = i2c_host_get_bus_state(i2c_peripheral_);
-  i2c_bus_error_state_ = i2c_host_get_bus_error_state(i2c_peripheral_);
-  i2c_bus_arbitration_state_ = i2c_host_get_arbitration_state(i2c_peripheral_);
-  i2c_transaction_len_error_ = i2c_host_get_lenerr_state(i2c_peripheral_);
-  i2c_client_timeout_ = i2c_host_get_sexttout_state(i2c_peripheral_);
-  i2c_host_timeout_ = i2c_host_get_mexttout_state(i2c_peripheral_);
-  i2c_clock_low_timeout_ = i2c_host_get_lowtout_state(i2c_peripheral_);
-  i2c_clock_hold_timeout_ = i2c_host_get_clkhold_state(i2c_peripheral_);
-}
-
 bool I2CDriver::SensorAvailable() {
-  UpdateStatus();
-  return i2c_rx_state_ == I2C_RX_ACK;
+  const uint8_t identification = 0x00;
+  uhal_status_t status = i2c_host_write_blocking(i2c_peripheral_, i2c_addr_, &identification, 0, I2C_STOP_BIT);
+  return (status == 0);
 }
