@@ -53,5 +53,4 @@ enum BareSensorType {
     BODY_POSITION_SENSOR
 };
 
-
 #endif  // SENSOR_HELPER_HPP_

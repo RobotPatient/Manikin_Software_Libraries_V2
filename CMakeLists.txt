@@ -11,7 +11,6 @@ add_library(sensor_compression sensor_drivers/sensor_compression/src/sensor_comp
 target_include_directories(sensor_compression PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_compression/src/)
 target_link_libraries(sensor_compression i2c_wrapper FreeRTOS)
 
-
 add_library(sensor_ventilation sensor_drivers/sensor_ventilation/src/sensor_ventilation.cpp)
 target_include_directories(sensor_ventilation PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_ventilation/src/)
 target_link_libraries(sensor_ventilation i2c_wrapper)
@@ -19,3 +18,7 @@ target_link_libraries(sensor_ventilation i2c_wrapper)
 add_library(sensor_fingerposition sensor_drivers/sensor_fingerposition/src/sensor_fingerposition.cpp)
 target_include_directories(sensor_fingerposition PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_fingerposition/src/)
 target_link_libraries(sensor_fingerposition i2c_wrapper)
+
+add_library(sensor_position sensor_drivers/sensor_position/src/sensor_position.cpp)
+target_include_directories(sensor_position PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_position/src/)
+target_link_libraries(sensor_position i2c_wrapper)
