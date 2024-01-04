@@ -164,15 +164,17 @@ void CompressionSensor::SetVL6180xDefautSettings(void) {
   i2c_handle_->WriteReg(kVl6180XFirmwareResultScaler, 0x01);
 }
 
-// Single shot mode see Application Note AN4545 p. 6/27
+/**
+    * @brief Single shot distance mode see Application Note AN4545 p. 6/27
+    *
+    * @return Availability status
+    */
 uint8_t CompressionSensor::GetDistance(void) {
   uint8_t distance = 0;
   uint8_t interrupt_status = 0;
   uint8_t timeout_counter = 0;
 
   i2c_handle_->WriteReg(kVl6180XSysrangeStart, 0x01);
-  sleep(10); // code smell should be Poll for New Sample Ready threshold event at {0x4f}
-
   interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
   while (interrupt_status != kVl6180XSysNewSampleReadyStatusOK) {
     interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
@@ -183,6 +185,7 @@ uint8_t CompressionSensor::GetDistance(void) {
   }
   distance = i2c_handle_->ReadReg(kVl6180XResultRangeVal);
   i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
+  UpdateRangeError();
   return distance;
 }
 
@@ -192,7 +195,7 @@ float CompressionSensor::GetAmbientLight(VL6180xAlsGain vl6180x_als_gain) {
   // Start ALS Measurement
   i2c_handle_->WriteReg(kVl6180XSysalsStart, 0x01);
 
-  sleep(100);  // give it time...
+  sleep(100);  // give it time... ToDo: code smell, poll register instead.
 
   i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
 
@@ -267,6 +270,25 @@ uint8_t CompressionSensor::ChangeAddress(uint8_t old_address,
     */
 const bool CompressionSensor::Available() {
   return i2c_handle_->SensorAvailable();
+}
+
+/**
+    * @brief Updates the range_status property by reading the Register RESULT__RANGE_STATUS {0x4d}
+    *
+    * @return void
+    */
+void CompressionSensor::UpdateRangeError() {
+  uint8_t _range_result = i2c_handle_->ReadReg(kVl6180XSysResultRangeStatus) >> 4;
+  range_status = SENSOR_STATUS(_range_result);
+}
+
+/**
+    * @brief Get the Sensor Range status of the sensor
+    *
+    * @return Sensor Range Status
+    */
+SENSOR_STATUS CompressionSensor::GetSensorRangeStatus() {
+  return range_status;
 }
 
 void CompressionSensor::Uninitialize() {}

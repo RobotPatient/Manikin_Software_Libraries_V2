@@ -59,6 +59,7 @@ inline constexpr uint16_t kVl6180XSysalsIntegrationPeriod = 0x0040;
 
 inline constexpr uint16_t kVl6180XSysNewSampleReady = 0x004F;
 inline constexpr uint16_t kVl6180XSysNewSampleReadyStatusOK = 0x04; // Poll RESULT__INTERRUPT_STATUS_GPIO {0x4f} register till bit 2 is set to 1.
+inline constexpr uint16_t kVl6180XSysResultRangeStatus = 0x004D;
 
 inline constexpr uint16_t kVl6180XResultAlsVal = 0x0050;
 inline constexpr uint16_t kVl6180XResultRangeVal = 0x0062;

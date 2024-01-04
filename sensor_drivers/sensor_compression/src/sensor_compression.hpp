@@ -55,6 +55,23 @@ enum VL6180xAlsGain {
   kGain_40,                  // Actual ALS Gain of 40
 };
 
+enum SENSOR_STATUS { // 3.1 Range error codes Application notes p. 8/27
+    STATUS_OK = 0,
+    SYSTEM_ERROR_1 = 1,
+    SYSTEM_ERROR_2 = 2,
+    SYSTEM_ERROR_3 = 3,
+    SYSTEM_ERROR_4 = 4,
+    SYSTEM_ERROR_5 = 5,
+    ECE_CHECK_FAILED = 6,
+    MAX_CONVERGENCE_EXCEEDED = 7,
+    RANGE_IGNORE_TH_CHECK_FAILED = 8,
+    SNR_ERROR = 11,
+    RAW_RANGE_UNDERFLOW = 12,
+    RAW_RANGE_OVERFLOW = 13,
+    RANGING_UNDERFLOW = 14,
+    RANGING_OVERFLOW = 15,
+};
+
 struct VL6180xIdentification {
   uint8_t id_model;
   uint8_t id_model_rev_major;
@@ -64,6 +81,9 @@ struct VL6180xIdentification {
   uint16_t id_date;
   uint16_t id_time;
 };
+
+
+
 
 class CompressionSensor : public UniversalSensor {
  public:
@@ -100,6 +120,13 @@ class CompressionSensor : public UniversalSensor {
   const bool Available() override;
 
   /**
+    * @brief Get the Sensor Range status of the sensor
+    *
+    * @return Sensor Range Status
+    */
+  SENSOR_STATUS GetSensorRangeStatus();
+
+  /**
   * @brief Uninitialize the sensor
   */
   void Uninitialize() override;
@@ -110,6 +137,8 @@ class CompressionSensor : public UniversalSensor {
  private:
   const uint8_t SensorType_ = 0x01;
   uint8_t sensor_i2c_address_ = kSensorAddr;
+  SENSOR_STATUS range_status = SENSOR_STATUS::STATUS_OK;
+
   SensorData sensor_data_{};
   I2CDriver *i2c_handle_;
 
@@ -120,6 +149,13 @@ class CompressionSensor : public UniversalSensor {
   float GetAmbientLight(VL6180xAlsGain vl6180x_als_gain);
   void GetIdentification(struct VL6180xIdentification *dest);
   uint8_t ChangeAddress(uint8_t old_address, uint8_t new_address);
+
+  /**
+    * @brief Updates range_status property based on RESULT_RANGE_STATUS {0x4d} Register
+    *
+    * @return void
+    */
+  void UpdateRangeError();
 
 };
 #endif  // SENSOR_COMPRESSION_HPP_
