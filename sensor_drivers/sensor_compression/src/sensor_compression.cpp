@@ -34,6 +34,17 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * ToDo: implement 2.7 Range error codes
+ * For documentation:
+ * see https://www.st.com/resource/en/datasheet/vl6180x.pdf
+ * also see https://www.st.com/resource/en/application_note/an4545-vl6180x-basic-ranging-application-note-stmicroelectronics.pdf
+ *
+ * Table 2.12 Scaling
+ * For our purpose we set:
+ * Scaling factor = 1 = proximity ranging (up to ~20 cm)
+ * Note: The default scaling factor is 3 so we need to reset it to 1. (see SetVL6180xDefautSettings)
+ *
 ***********************************************************************************************/
 
 #include <sensor_compression.hpp>
@@ -58,7 +69,7 @@
 
 void CompressionSensor::Initialize(I2CDriver* handle) {
   i2c_handle_ = handle;
-    i2c_handle_->ChangeAddress(sensor_i2c_address_);
+  i2c_handle_->ChangeAddress(sensor_i2c_address_);
   InitVL6180X();
   SetVL6180xDefautSettings();
   sensor_data_.sample_num = 0;
@@ -153,13 +164,25 @@ void CompressionSensor::SetVL6180xDefautSettings(void) {
   i2c_handle_->WriteReg(kVl6180XFirmwareResultScaler, 0x01);
 }
 
-// Single shot mode
+// Single shot mode see Application Note AN4545 p. 6/27
 uint8_t CompressionSensor::GetDistance(void) {
   uint8_t distance = 0;
+  uint8_t interrupt_status = 0;
+  uint8_t timeout_counter = 0;
+
   i2c_handle_->WriteReg(kVl6180XSysrangeStart, 0x01);
-  sleep(10);
-  i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
+  sleep(10); // code smell should be Poll for New Sample Ready threshold event at {0x4f}
+
+  interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
+  while (interrupt_status != kVl6180XSysNewSampleReadyStatusOK) {
+    interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
+    timeout_counter++;
+    if (timeout_counter > MAX_SENSOR_READ_ATTEMPTS) { // Not likely but to avoid hangs...
+      return 0; // ToDo: add timeout error flag.
+    }
+  }
   distance = i2c_handle_->ReadReg(kVl6180XResultRangeVal);
+  i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
   return distance;
 }
 

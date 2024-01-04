@@ -57,11 +57,16 @@ inline constexpr uint16_t kVl6180XSysalsIntermeasurementPeriod = 0x003E;
 inline constexpr uint16_t kVl6180XSysalsAnalogueGain = 0x003F;
 inline constexpr uint16_t kVl6180XSysalsIntegrationPeriod = 0x0040;
 
+inline constexpr uint16_t kVl6180XSysNewSampleReady = 0x004F;
+inline constexpr uint16_t kVl6180XSysNewSampleReadyStatusOK = 0x04; // Poll RESULT__INTERRUPT_STATUS_GPIO {0x4f} register till bit 2 is set to 1.
+
 inline constexpr uint16_t kVl6180XResultAlsVal = 0x0050;
 inline constexpr uint16_t kVl6180XResultRangeVal = 0x0062;
 
 inline constexpr uint16_t kVl6180XReadoutAveragingSamplePeriod = 0x010A;
 inline constexpr uint16_t kVl6180XFirmwareResultScaler = 0x0120;
 inline constexpr uint16_t kVl6180Xi2CSlaveDeviceAddress = 0x0212;
+
+inline constexpr uint8_t MAX_SENSOR_READ_ATTEMPTS = 150;
 
 #endif  // SENSOR_COMPRESSION_VL6180X_REGISTERS_HPP_
