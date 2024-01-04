@@ -85,6 +85,12 @@ SensorData CompressionSensor::GetSensorData() {
 
   return sensor_data_;
 }
+/**
+    * @brief Sets recommended settings required to be loaded onto the VL6180X during the
+initialisation of the device
+    *   See 4545 p.24/27 Section 9 SR03 settings
+    * @return void
+    */
 
 uint8_t CompressionSensor::InitVL6180X(void) {
   uint8_t data = 0;
@@ -98,8 +104,8 @@ uint8_t CompressionSensor::InitVL6180X(void) {
   i2c_handle_->WriteReg(0x0208, 0x01);
   i2c_handle_->WriteReg(0x0096, 0x00);
   i2c_handle_->WriteReg(0x0097, 0xfd);
-  i2c_handle_->WriteReg(0x00e3, 0x00);
-  i2c_handle_->WriteReg(0x00e4, 0x04);
+  i2c_handle_->WriteReg(0x00e3, 0x01);
+  i2c_handle_->WriteReg(0x00e4, 0x03);
   i2c_handle_->WriteReg(0x00e5, 0x02);
   i2c_handle_->WriteReg(0x00e6, 0x01);
   i2c_handle_->WriteReg(0x00e7, 0x03);
