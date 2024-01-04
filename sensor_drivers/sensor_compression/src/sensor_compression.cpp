@@ -81,6 +81,8 @@ SensorData CompressionSensor::GetSensorData() {
   sensor_data_.buffer[0] = distance;
   sensor_data_.sample_num++;
   sensor_data_.sensor_id = 0x01;
+  sensor_data_.status = GetSensorRangeStatus();
+
   return sensor_data_;
 }
 
