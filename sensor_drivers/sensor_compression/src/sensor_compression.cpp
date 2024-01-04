@@ -187,7 +187,7 @@ uint8_t CompressionSensor::GetDistance(void) {
   while (interrupt_status != kVl6180XSysNewSampleReadyStatusOK) {
     interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
     timeout_counter++;
-    if (timeout_counter > MAX_SENSOR_READ_ATTEMPTS) { // Not likely but to avoid hangs...
+    if (timeout_counter > kMAX_SENSOR_READ_ATTEMPTS) { // Not likely but to avoid hangs...
       return 0; // ToDo: add timeout error flag.
     }
   }
@@ -203,7 +203,7 @@ float CompressionSensor::GetAmbientLight(VL6180xAlsGain vl6180x_als_gain) {
   // Start ALS Measurement
   i2c_handle_->WriteReg(kVl6180XSysalsStart, 0x01);
 
-  sleep(100);  // give it time... ToDo: code smell, poll register instead.
+  sleep(kSAMPLE_TIME);  // give it time... ToDo: code smell, poll register instead.
 
   i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
 

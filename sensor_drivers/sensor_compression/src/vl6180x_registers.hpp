@@ -24,6 +24,8 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ *
 ***********************************************************************************************/
 
 #ifndef SENSOR_COMPRESSION_VL6180X_REGISTERS_HPP_
@@ -68,6 +70,7 @@ inline constexpr uint16_t kVl6180XReadoutAveragingSamplePeriod = 0x010A;
 inline constexpr uint16_t kVl6180XFirmwareResultScaler = 0x0120;
 inline constexpr uint16_t kVl6180Xi2CSlaveDeviceAddress = 0x0212;
 
-inline constexpr uint8_t MAX_SENSOR_READ_ATTEMPTS = 150;
+inline constexpr uint8_t kMAX_SENSOR_READ_ATTEMPTS = 150;
+const uint8_t kSAMPLE_TIME = 100;
 
 #endif  // SENSOR_COMPRESSION_VL6180X_REGISTERS_HPP_
