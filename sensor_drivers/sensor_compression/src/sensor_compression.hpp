@@ -55,7 +55,7 @@ enum VL6180xAlsGain {
   kGain_40,                  // Actual ALS Gain of 40
 };
 
-enum SENSOR_STATUS { // 3.1 Range error codes Application notes p. 8/27
+enum SensorStatus { // 3.1 Range error codes Application notes p. 8/27
     STATUS_OK = 0,
     SYSTEM_ERROR_1 = 1,
     SYSTEM_ERROR_2 = 2,
@@ -124,7 +124,7 @@ class CompressionSensor : public UniversalSensor {
     *
     * @return Sensor Range Status
     */
-  SENSOR_STATUS GetSensorRangeStatus();
+  SensorStatus GetSensorRangeStatus();
 
   /**
   * @brief Uninitialize the sensor
@@ -137,7 +137,7 @@ class CompressionSensor : public UniversalSensor {
  private:
   const uint8_t SensorType_ = 0x01;
   uint8_t sensor_i2c_address_ = kSensorAddr;
-  SENSOR_STATUS range_status = SENSOR_STATUS::STATUS_OK;
+  SensorStatus range_status = SensorStatus::STATUS_OK;
 
   SensorData sensor_data_{};
   I2CDriver *i2c_handle_;

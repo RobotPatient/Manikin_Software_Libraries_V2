@@ -287,7 +287,7 @@ const bool CompressionSensor::Available() {
     */
 void CompressionSensor::UpdateRangeError() {
   uint8_t _range_result = i2c_handle_->ReadReg(kVl6180XSysResultRangeStatus) >> 4;
-  range_status = SENSOR_STATUS(_range_result);
+  range_status = SensorStatus(_range_result);
 }
 
 /**
@@ -295,7 +295,7 @@ void CompressionSensor::UpdateRangeError() {
     *
     * @return Sensor Range Status
     */
-SENSOR_STATUS CompressionSensor::GetSensorRangeStatus() {
+SensorStatus CompressionSensor::GetSensorRangeStatus() {
   return range_status;
 }
 
