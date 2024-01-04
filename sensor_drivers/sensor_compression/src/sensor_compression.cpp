@@ -203,7 +203,7 @@ float CompressionSensor::GetAmbientLight(VL6180xAlsGain vl6180x_als_gain) {
   // Start ALS Measurement
   i2c_handle_->WriteReg(kVl6180XSysalsStart, 0x01);
 
-  sleep(kSAMPLE_TIME);  // give it time... ToDo: code smell, poll register instead.
+  sleep(kSAMPLE_TIME);  // give it time... (FreeRTOS compatible)
 
   i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
 
