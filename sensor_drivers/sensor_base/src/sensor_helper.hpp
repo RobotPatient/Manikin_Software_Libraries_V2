@@ -37,10 +37,11 @@ inline constexpr uint8_t kMaxAmountOfSensorBytes = 8;
  *
  */
 typedef struct SensorData {
-    uint16_t sample_num;                          /**< index / counter */
-    uint16_t sensor_id;                           /**< high byte: real sensor_id as defined in SensorType enum, low byte: subsensor (e.g. 0..8 for finger position sensor) */
-    uint16_t buffer[kMaxAmountOfSensorBytes];     /**< actual data of sensor */
-    uint8_t num_of_bytes;                         /**< number of bytes as stored in the buffer */
+  uint16_t sample_num;                          /**< index / counter */
+  uint16_t sensor_id;                           /**< high byte: real sensor_id as defined in SensorType enum, low byte: subsensor (e.g. 0..8 for finger position sensor) */
+  uint16_t buffer[kMaxAmountOfSensorBytes];     /**< actual data of sensor */
+  uint8_t num_of_bytes;                         /**< number of bytes as stored in the buffer */
+  uint8_t status;                               /**< sensor status */
 } SensorData_t;
 
 enum BareSensorType {
