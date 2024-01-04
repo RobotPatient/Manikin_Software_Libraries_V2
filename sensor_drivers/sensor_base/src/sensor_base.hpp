@@ -30,6 +30,7 @@
 #define SENSOR_BASE_HPP_
 
 #include <i2c_helper.hpp>
+#include "sensor_helper.hpp"
 
 inline constexpr uint8_t kMaxAmountOfSensorBytes = 8;
 /**
@@ -55,7 +56,6 @@ enum BareSensorType {
     HEAD_POSITION_SENSOR,
     BODY_POSITION_SENSOR
 };
-
 
 class UniversalSensor {
  public:
