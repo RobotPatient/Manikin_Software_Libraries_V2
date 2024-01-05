@@ -34,6 +34,17 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * ToDo: implement 2.7 Range error codes
+ * For documentation:
+ * see https://www.st.com/resource/en/datasheet/vl6180x.pdf
+ * also see https://www.st.com/resource/en/application_note/an4545-vl6180x-basic-ranging-application-note-stmicroelectronics.pdf
+ *
+ * Table 2.12 Scaling
+ * For our purpose we set:
+ * Scaling factor = 1 = proximity ranging (up to ~20 cm)
+ * Note: The default scaling factor is 3 so we need to reset it to 1. (see SetVL6180xDefautSettings)
+ *
 ***********************************************************************************************/
 
 #include <sensor_compression.hpp>
@@ -58,7 +69,7 @@
 
 void CompressionSensor::Initialize(I2CDriver* handle) {
   i2c_handle_ = handle;
-    i2c_handle_->ChangeAddress(sensor_i2c_address_);
+  i2c_handle_->ChangeAddress(sensor_i2c_address_);
   InitVL6180X();
   SetVL6180xDefautSettings();
   sensor_data_.sample_num = 0;
@@ -70,8 +81,16 @@ SensorData CompressionSensor::GetSensorData() {
   sensor_data_.buffer[0] = distance;
   sensor_data_.sample_num++;
   sensor_data_.sensor_id = 0x01;
+  sensor_data_.status = GetSensorRangeStatus();
+
   return sensor_data_;
 }
+/**
+    * @brief Sets recommended settings required to be loaded onto the VL6180X during the
+initialisation of the device
+    *   See 4545 p.24/27 Section 9 SR03 settings
+    * @return void
+    */
 
 uint8_t CompressionSensor::InitVL6180X(void) {
   uint8_t data = 0;
@@ -85,8 +104,8 @@ uint8_t CompressionSensor::InitVL6180X(void) {
   i2c_handle_->WriteReg(0x0208, 0x01);
   i2c_handle_->WriteReg(0x0096, 0x00);
   i2c_handle_->WriteReg(0x0097, 0xfd);
-  i2c_handle_->WriteReg(0x00e3, 0x00);
-  i2c_handle_->WriteReg(0x00e4, 0x04);
+  i2c_handle_->WriteReg(0x00e3, 0x01);
+  i2c_handle_->WriteReg(0x00e4, 0x03);
   i2c_handle_->WriteReg(0x00e5, 0x02);
   i2c_handle_->WriteReg(0x00e6, 0x01);
   i2c_handle_->WriteReg(0x00e7, 0x03);
@@ -153,13 +172,28 @@ void CompressionSensor::SetVL6180xDefautSettings(void) {
   i2c_handle_->WriteReg(kVl6180XFirmwareResultScaler, 0x01);
 }
 
-// Single shot mode
+/**
+    * @brief Single shot distance mode see Application Note AN4545 p. 6/27
+    *
+    * @return Availability status
+    */
 uint8_t CompressionSensor::GetDistance(void) {
   uint8_t distance = 0;
+  uint8_t interrupt_status = 0;
+  uint8_t timeout_counter = 0;
+
   i2c_handle_->WriteReg(kVl6180XSysrangeStart, 0x01);
-  sleep(10);
-  i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
+  interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
+  while (interrupt_status != kVl6180XSysNewSampleReadyStatusOK) {
+    interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
+    timeout_counter++;
+    if (timeout_counter > kMAX_SENSOR_READ_ATTEMPTS) { // Not likely but to avoid hangs...
+      return 0; // ToDo: add timeout error flag.
+    }
+  }
   distance = i2c_handle_->ReadReg(kVl6180XResultRangeVal);
+  i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
+  UpdateRangeError();
   return distance;
 }
 
@@ -169,7 +203,7 @@ float CompressionSensor::GetAmbientLight(VL6180xAlsGain vl6180x_als_gain) {
   // Start ALS Measurement
   i2c_handle_->WriteReg(kVl6180XSysalsStart, 0x01);
 
-  sleep(100);  // give it time...
+  sleep(kSAMPLE_TIME);  // give it time... (FreeRTOS compatible)
 
   i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
 
@@ -244,6 +278,25 @@ uint8_t CompressionSensor::ChangeAddress(uint8_t old_address,
     */
 const bool CompressionSensor::Available() {
   return i2c_handle_->SensorAvailable();
+}
+
+/**
+    * @brief Updates the range_status property by reading the Register RESULT__RANGE_STATUS {0x4d}
+    *
+    * @return void
+    */
+void CompressionSensor::UpdateRangeError() {
+  uint8_t _range_result = i2c_handle_->ReadReg(kVl6180XSysResultRangeStatus) >> 4;
+  range_status = SensorStatus(_range_result);
+}
+
+/**
+    * @brief Get the Sensor Range status of the sensor
+    *
+    * @return Sensor Range Status
+    */
+SensorStatus CompressionSensor::GetSensorRangeStatus() {
+  return range_status;
 }
 
 void CompressionSensor::Uninitialize() {}
