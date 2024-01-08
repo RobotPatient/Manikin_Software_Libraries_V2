@@ -30,6 +30,7 @@
 #define SENSOR_POSITIONING_HPP_
 
 #include <sensor_base.hpp>
+#include "../
 
 inline constexpr uint8_t kBMI270Addr = 0x10;
 
