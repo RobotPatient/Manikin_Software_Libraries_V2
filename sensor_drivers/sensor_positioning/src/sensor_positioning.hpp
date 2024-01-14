@@ -30,9 +30,14 @@
 #define SENSOR_POSITIONING_HPP_
 
 #include <sensor_base.hpp>
-#include "../
+#include "BMI270/bmi270.h"
 
-inline constexpr uint8_t kBMI270Addr = 0x10;
+inline constexpr uint8_t kBMI270Addr = 0x24;
+
+struct dev_info {
+    I2CDriver *_i2c_handle_;
+    uint8_t dev_addr;
+};
 
 class PositioningSensor : public UniversalSensor {
 public:
@@ -71,21 +76,27 @@ public:
       Uninitialize();
     }
 
-    /**
-      * @brief Get the availability status of the sensor
-      *
-      * @return Availability status
-      */
+    const bool Available() override;
 
-    const bool Available() override {
-      return false;  // TODO
-    }
+    void SensorTest();
 
 private:
     const uint8_t SensorType_ = 0x03;
     const uint8_t kSensorI2CAddress_ = kBMI270Addr;
     I2CDriver *i2c_handle_;
-    //SensorData sensor_data_{};
+    SensorData sensor_data_{};
+
+    struct bmi2_dev bmiSensor;
+    //struct bmm150_dev bmmSensor;
+
+    uint8_t InitBMI_Sensor(void);
+    void SetBMI270DefautSettings(void);
+    void InitBMI270Registers();
+
+    static int8_t bmi2_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr);
+    static int8_t bmi2_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr);
+    static void bmi2_delay_us(uint32_t period, void *intf_ptr);
+
 
     //void initDefaultRead(void);
     //void readADC(uint16_t *dest);

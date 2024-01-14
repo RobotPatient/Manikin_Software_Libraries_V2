@@ -100,6 +100,7 @@ uint8_t CompressionSensor::InitVL6180X(void) {
   if (data != 1)
     return kVl6180XFailureReset;
 
+  // ToDo: refactor into an array:
   i2c_handle_->WriteReg(0x0207, 0x01);
   i2c_handle_->WriteReg(0x0208, 0x01);
   i2c_handle_->WriteReg(0x0096, 0x00);
@@ -299,5 +300,12 @@ SensorStatus CompressionSensor::GetSensorRangeStatus() {
   return range_status;
 }
 
-void CompressionSensor::Uninitialize() {}
+/**
+    * @brief Get the Sensor Range status of the sensor
+    *
+    * @return Sensor Range Status
+    */
+void CompressionSensor::Uninitialize() {
+
+}
 
