@@ -108,8 +108,14 @@ void I2CDriver::ReadBytes(uint8_t *buffer, uint8_t num_of_bytes) {
   i2c_peripheral_->readBytes(buffer, num_of_bytes);
 }
 
-void I2CDriver::SendBytes(uint8_t *buffer, uint8_t num_of_bytes) {
+uint8_t I2CDriver::SendBytes(const uint8_t *buffer, uint8_t num_of_bytes) {
   i2c_peripheral_->beginTransmission(i2c_addr_);
   i2c_peripheral_->write(buffer, num_of_bytes);
-  i2c_peripheral_->endTransmission(true);
+  return i2c_peripheral_->endTransmission(true);
+}
+
+uint8_t I2CDriver::SendByte(const uint8_t data) {
+  i2c_peripheral_->beginTransmission(i2c_addr_);
+  i2c_peripheral_->write(data, 1);
+  return i2c_peripheral_->endTransmission(true);
 }

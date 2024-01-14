@@ -31,6 +31,8 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <unistd.h>
+
 
 //#include "BMI270/bmi2.h"
 //#include "BMI270/bmi270.h"
@@ -120,6 +122,7 @@ uint8_t PositioningSensor::InitBMI_Sensor(void) {
   bmiSensor.read_write_len = 30; // Limitation of the Wire library
   bmiSensor.config_file_ptr = NULL; // Use the default BMI270 config file
 
+
   /*
 
   accel_gyro_dev_info._wire = _wire;
@@ -200,21 +203,20 @@ int8_t PositioningSensor::bmi2_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uin
   if ((reg_data == NULL) || (len == 0) || (len > 32)) {
     return -1;
   }
-  uint8_t bytes_received;
+  //uint8_t bytes_received;
 
   struct dev_info* dev_info = (struct dev_info*)intf_ptr;
-  uint8_t dev_id = dev_info->dev_addr;
+  //uint8_t dev_id = dev_info->dev_addr;
 
-  //dev_info->_wire->beginTransmission(dev_id);
-  dev_info->_i2c_handle_->beginTransmission(dev_id);
-  dev_info->_wire->write(reg_addr);
-  if (dev_info->_wire->endTransmission() == 0) {
-    bytes_received = dev_info->_wire->requestFrom(dev_id, len);
+  if (dev_info->_i2c_handle_->SendByte(reg_addr) == 0) {
+    dev_info->_i2c_handle_->ReadBytes(reg_data, len);
+
+    /*
     // Optionally, throw an error if bytes_received != len
     for (uint16_t i = 0; i < bytes_received; i++)
     {
-      reg_data[i] = dev_info->_wire->read();
-    }
+      reg_data[i] = dev_info->_i2c_handle_->read();
+    }*/
   } else {
     return -1;
   }
@@ -229,14 +231,9 @@ int8_t PositioningSensor::bmi2_i2c_write(uint8_t reg_addr, const uint8_t *reg_da
   }
 
   struct dev_info* dev_info = (struct dev_info*)intf_ptr;
-  uint8_t dev_id = dev_info->dev_addr;
-  dev_info->_wire->beginTransmission(dev_id);
-  dev_info->_wire->write(reg_addr);
-  for (uint16_t i = 0; i < len; i++)
-  {
-    dev_info->_wire->write(reg_data[i]);
-  }
-  if (dev_info->_wire->endTransmission() != 0) {
+  //uint8_t dev_id = dev_info->dev_addr;
+  dev_info->_i2c_handle_->SendByte(reg_addr);
+  if (dev_info->_i2c_handle_->SendBytes(reg_data, len) != 0) {
     return -1;
   }
 
@@ -245,5 +242,9 @@ int8_t PositioningSensor::bmi2_i2c_write(uint8_t reg_addr, const uint8_t *reg_da
 
 void PositioningSensor::bmi2_delay_us(uint32_t period, void *intf_ptr)
 {
-  delayMicroseconds(period);
+  // Convert microseconds to ticks (assuming a 1000 Hz tick rate)
+  TickType_t usDelay = pdMS_TO_TICKS(100); // 100 microseconds
+
+// Delay the task for the specified number of ticks
+  vTaskDelay(usDelay);
 }

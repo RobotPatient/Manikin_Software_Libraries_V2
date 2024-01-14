@@ -88,8 +88,12 @@ void I2CDriver::ReadBytes(uint8_t *buffer, uint8_t num_of_bytes) {
   i2c_host_read_blocking(i2c_peripheral_, i2c_addr_, buffer, num_of_bytes);
 }
 
-void I2CDriver::SendBytes(uint8_t *buffer, uint8_t num_of_bytes) {
-  i2c_host_write_blocking(i2c_peripheral_, i2c_addr_, buffer, num_of_bytes, I2C_STOP_BIT);
+uint8_t I2CDriver::SendBytes(const uint8_t *buffer, uint8_t num_of_bytes) {
+  return i2c_host_write_blocking(i2c_peripheral_, i2c_addr_, buffer, num_of_bytes, I2C_STOP_BIT);
+}
+
+uint8_t I2CDriver::SendByte(const uint8_t data) {
+  return SendBytes(&data, 1);
 }
 
 bool I2CDriver::SensorAvailable() {
