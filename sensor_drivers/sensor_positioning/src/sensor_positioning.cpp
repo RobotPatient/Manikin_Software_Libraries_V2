@@ -34,9 +34,9 @@
 #include <unistd.h>
 
 
-//#include "BMI270/bmi2.h"
-//#include "BMI270/bmi270.h"
-//#include "BMI270/common/common.h"
+#include "BMI270/bmi2.h"
+#include "BMI270/bmi270.h"
+#include "BMI270/common/common.h"
 
 #include "sensor_positioning.hpp"
 #include "BMI270/bmi270_registers.hpp"
@@ -107,7 +107,10 @@ void PositioningSensor::InitBMI270Registers() {
     */
 
 uint8_t PositioningSensor::InitBMI_Sensor(void) {
-  uint8_t data = 0xFF;
+
+  // We used the examples from Bosch but they are not too good in commenting why they do what...
+
+  uint8_t data = 0x00;
 
   data = i2c_handle_->ReadReg(kBMI270Addr);
   if (data != 0x01)
@@ -118,16 +121,16 @@ uint8_t PositioningSensor::InitBMI_Sensor(void) {
   bmiSensor.write = bmi2_i2c_write;
   bmiSensor.delay_us = bmi2_delay_us;
   bmiSensor.intf = BMI2_I2C_INTF;
-  //bmiSensor.intf_ptr = &accel_gyro_dev_info;
-  bmiSensor.read_write_len = 30; // Limitation of the Wire library
+  bmiSensor.intf_ptr = &accel_gyro_dev_info; // Why would they do this?!
+  bmiSensor.read_write_len = 30; // Limitation of the Wire library -> @ Victor, we could change that as we don't use Wire
   bmiSensor.config_file_ptr = NULL; // Use the default BMI270 config file
 
+  accel_gyro_dev_info._i2c_handle_ = i2c_handle_;
+  accel_gyro_dev_info.dev_addr = bmiSensor.chip_id;
 
   /*
-
-  accel_gyro_dev_info._wire = _wire;
-  accel_gyro_dev_info.dev_addr = bmi2.chip_id;
-
+   * For future use:
+   *
   bmm1.chip_id = BMM150_DEFAULT_I2C_ADDRESS;
   bmm1.read = bmi2_i2c_read;
   bmm1.write = bmi2_i2c_write;
@@ -137,25 +140,32 @@ uint8_t PositioningSensor::InitBMI_Sensor(void) {
 
   mag_dev_info._wire = _wire;
   mag_dev_info.dev_addr = bmm1.chip_id;
+  */
 
-  int8_t bmi270InitResult = bmi270_init(&bmi2);
-  print_rslt(bmi270InitResult);
+  bmi270_init(&bmiSensor);
 
-  int8_t bmi270ConfigResult = configure_sensor(&bmi2);
-  print_rslt(bmi270ConfigResult);
+  int8_t bmi270InitResult = bmi270_init(&bmiSensor);
+  // print_rslt(bmi270InitResult); // might be interesting for future use...
+
+  int8_t bmi270ConfigResult = configure_sensor(&bmiSensor);
+  // print_rslt(bmi270ConfigResult); // might be interesting for future use...
+
+  /*
 
   int8_t bmm150InitResult = bmm150_init(&bmm1);
   print_rslt(bmm150InitResult);
 
   int8_t bmm150ConfigResult = configure_sensor(&bmm1);
   print_rslt(bmm150ConfigResult);
+  */
 
-  bool success = bmi270InitResult == BMI2_OK && bmi270ConfigResult == BMI2_OK &&
-                 bmm150InitResult == BMM150_OK && bmm150ConfigResult == BMM150_OK;
-  _initialized = success;
+  bool success = bmi270InitResult == BMI2_OK && bmi270ConfigResult == BMI2_OK;
+  // &&
+  //               bmm150InitResult == BMM150_OK && bmm150ConfigResult == BMM150_OK;
+  //_initialized = success;
 
   return success;
-  */
+
   return 0;
 }
 
@@ -247,4 +257,50 @@ void PositioningSensor::bmi2_delay_us(uint32_t period, void *intf_ptr)
 
 // Delay the task for the specified number of ticks
   vTaskDelay(usDelay);
+}
+
+int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
+{
+  int8_t rslt;
+  uint8_t sens_list[2] = { BMI2_ACCEL, BMI2_GYRO };
+
+  struct bmi2_int_pin_config int_pin_cfg;
+  int_pin_cfg.pin_type = BMI2_INT1;
+  int_pin_cfg.int_latch = BMI2_INT_NON_LATCH;
+  int_pin_cfg.pin_cfg[0].lvl = BMI2_INT_ACTIVE_HIGH;
+  int_pin_cfg.pin_cfg[0].od = BMI2_INT_PUSH_PULL;
+  int_pin_cfg.pin_cfg[0].output_en = BMI2_INT_OUTPUT_ENABLE;
+  int_pin_cfg.pin_cfg[0].input_en = BMI2_INT_INPUT_DISABLE;
+
+  struct bmi2_sens_config sens_cfg[2];
+  sens_cfg[0].type = BMI2_ACCEL;
+  sens_cfg[0].cfg.acc.bwp = BMI2_ACC_OSR2_AVG2;
+  sens_cfg[0].cfg.acc.odr = BMI2_ACC_ODR_100HZ;
+  sens_cfg[0].cfg.acc.filter_perf = BMI2_PERF_OPT_MODE;
+  sens_cfg[0].cfg.acc.range = BMI2_ACC_RANGE_4G;
+  sens_cfg[1].type = BMI2_GYRO;
+  sens_cfg[1].cfg.gyr.filter_perf = BMI2_PERF_OPT_MODE;
+  sens_cfg[1].cfg.gyr.bwp = BMI2_GYR_OSR2_MODE;
+  sens_cfg[1].cfg.gyr.odr = BMI2_GYR_ODR_100HZ;
+  sens_cfg[1].cfg.gyr.range = BMI2_GYR_RANGE_2000;
+  sens_cfg[1].cfg.gyr.ois_range = BMI2_GYR_OIS_2000;
+
+  /*
+  rslt = bmi2_set_int_pin_config(&int_pin_cfg, dev);
+  if (rslt != BMI2_OK)
+    return rslt;
+
+  rslt = bmi2_map_data_int(BMI2_DRDY_INT, BMI2_INT1, dev);
+  if (rslt != BMI2_OK)
+    return rslt;
+
+  rslt = bmi2_set_sensor_config(sens_cfg, 2, dev);
+  if (rslt != BMI2_OK)
+    return rslt;
+
+  rslt = bmi2_sensor_enable(sens_list, 2, dev);
+  if (rslt != BMI2_OK)
+    return rslt;
+  */
+  return rslt;
 }

@@ -86,8 +86,11 @@ private:
     I2CDriver *i2c_handle_;
     SensorData sensor_data_{};
 
+    struct dev_info accel_gyro_dev_info;
+    // struct dev_info mag_dev_info; // for future use
+
     struct bmi2_dev bmiSensor;
-    //struct bmm150_dev bmmSensor;
+    // struct bmm150_dev bmmSensor; // for future use
 
     uint8_t InitBMI_Sensor(void);
     void SetBMI270DefautSettings(void);
@@ -96,6 +99,8 @@ private:
     static int8_t bmi2_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr);
     static int8_t bmi2_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr);
     static void bmi2_delay_us(uint32_t period, void *intf_ptr);
+
+    int8_t configure_sensor(struct bmi2_dev *dev);
 
 
     //void initDefaultRead(void);
