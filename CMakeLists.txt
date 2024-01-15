@@ -19,6 +19,6 @@ add_library(sensor_fingerposition sensor_drivers/sensor_fingerposition/src/senso
 target_include_directories(sensor_fingerposition PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_fingerposition/src/)
 target_link_libraries(sensor_fingerposition i2c_wrapper FreeRTOS)
 
-add_library(sensor_positioning sensor_drivers/sensor_positioning/src/sensor_positioning.cpp)
-target_include_directories(sensor_positioning PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_positioning/src/)
+add_library(sensor_positioning sensor_drivers/sensor_positioning/src/sensor_positioning.cpp sensor_drivers/sensor_positioning/src/BMI270/bmi270.c sensor_drivers/sensor_positioning/src/BMI270/bmi2.c)
+target_include_directories(sensor_positioning PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_positioning/src/ sensor_drivers/sensor_positioning/src/BMI270/)
 target_link_libraries(sensor_positioning i2c_wrapper FreeRTOS)

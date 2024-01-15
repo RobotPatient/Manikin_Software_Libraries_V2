@@ -142,6 +142,8 @@ uint8_t PositioningSensor::InitBMI_Sensor(void) {
   mag_dev_info.dev_addr = bmm1.chip_id;
   */
 
+  // ToDo: aan CMake toevoegen...
+
   bmi270_init(&bmiSensor);
 
   int8_t bmi270InitResult = bmi270_init(&bmiSensor);
