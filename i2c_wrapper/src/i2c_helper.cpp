@@ -24,6 +24,10 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Note to the developer:
+ * This class is only to be used in case of Arduino
+ *
 ***********************************************************************************************/
 
 #include <i2c_helper.hpp>

@@ -164,7 +164,7 @@ uint8_t PositioningSensor::InitBMI_Sensor(void) {
   bool success = bmi270InitResult == BMI2_OK && bmi270ConfigResult == BMI2_OK;
   // &&
   //               bmm150InitResult == BMM150_OK && bmm150ConfigResult == BMM150_OK;
-  //_initialized = success;
+  _initialized = success;
 
   return success;
 
