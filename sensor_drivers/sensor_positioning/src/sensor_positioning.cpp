@@ -287,7 +287,6 @@ int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
   sens_cfg[1].cfg.gyr.range = BMI2_GYR_RANGE_2000;
   sens_cfg[1].cfg.gyr.ois_range = BMI2_GYR_OIS_2000;
 
-  /*
   rslt = bmi2_set_int_pin_config(&int_pin_cfg, dev);
   if (rslt != BMI2_OK)
     return rslt;
@@ -303,6 +302,6 @@ int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
   rslt = bmi2_sensor_enable(sens_list, 2, dev);
   if (rslt != BMI2_OK)
     return rslt;
-  */
+  
   return rslt;
 }

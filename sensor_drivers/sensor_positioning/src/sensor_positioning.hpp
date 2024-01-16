@@ -102,6 +102,8 @@ private:
 
     int8_t configure_sensor(struct bmi2_dev *dev);
 
+    bool _initialized = false;
+
 
     //void initDefaultRead(void);
     //void readADC(uint16_t *dest);
