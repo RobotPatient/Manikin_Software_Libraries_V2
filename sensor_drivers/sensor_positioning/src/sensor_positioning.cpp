@@ -217,16 +217,16 @@ int8_t PositioningSensor::bmi2_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uin
   return 0;
 }
 
-Orientation3D PositioningSensor::GetGyroscopeInfo(struct bmi2_dev *dev) {
+Orientation3D PositioningSensor::GetGyroscopeInfo() {
   Orientation3D _result;
   struct bmi2_sens_data sensor_data = { { 0 } };
-  int8_t rslt = bmi2_get_sensor_data(&sensor_data, dev);
+  int8_t rslt = bmi2_get_sensor_data(&sensor_data, &bmiSensor);
 
   if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_GYR)) {
     /* Converting lsb to degree per second for 16 bit gyro at 2000dps range. */
-    _result.x = lsb_to_dps(sensor_data.gyr.x, (float) 2000, dev->resolution);
-    _result.y = lsb_to_dps(sensor_data.gyr.y, (float) 2000, dev->resolution);
-    _result.z = lsb_to_dps(sensor_data.gyr.z, (float) 2000, dev->resolution);
+    _result.x = lsb_to_dps(sensor_data.gyr.x, (float) 2000, bmiSensor.resolution);
+    _result.y = lsb_to_dps(sensor_data.gyr.y, (float) 2000, bmiSensor.resolution);
+    _result.z = lsb_to_dps(sensor_data.gyr.z, (float) 2000, bmiSensor.resolution);
   }
   return _result;
 }

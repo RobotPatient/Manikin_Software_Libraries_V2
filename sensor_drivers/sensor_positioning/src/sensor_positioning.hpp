@@ -110,7 +110,7 @@ private:
 
     bool _initialized = false;
 
-    Orientation3D GetGyroscopeInfo(struct bmi2_dev *dev);
+    Orientation3D GetGyroscopeInfo();
     Orientation3D GetAcceleroInfo();
     Orientation3D GetMagnetoInfo(); // (future extension BMM)
 
