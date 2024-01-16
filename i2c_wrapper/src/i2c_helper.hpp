@@ -46,6 +46,7 @@ typedef enum {
 } I2CSpeed;
 
 
+
 class I2CDriver {
  public:
   I2CDriver(I2C_PERIPHERAL_T i2c_peripheral, I2CSpeed speed, uint8_t i2c_addr) {

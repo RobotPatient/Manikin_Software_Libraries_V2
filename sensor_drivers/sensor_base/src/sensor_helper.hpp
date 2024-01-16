@@ -33,6 +33,11 @@
 #include <math.h>
 
 inline constexpr uint8_t kMaxAmountOfSensorBytes = 9;
+
+/*! Earth's gravity in m/s^2 */
+#define GRAVITY_EARTH  (9.80665f)
+
+
 /**
  * @brief Sensordata struct contains the read sensor data with samplenum and sensortype
  *
@@ -71,5 +76,17 @@ static float lsb_to_dps(int16_t val, float dps, uint8_t bit_width)
   return (dps / (half_scale)) * (val);
 }
 
+/*!
+ * @brief This function converts lsb to meter per second squared for 16 bit accelerometer at
+ * range 2G, 4G, 8G or 16G.
+ */
+static float lsb_to_mps2(int16_t val, float g_range, uint8_t bit_width)
+{
+  double power = 2;
+
+  float half_scale = (float)((pow((double)power, (double)bit_width) / 2.0f));
+
+  return (GRAVITY_EARTH * val * g_range) / half_scale;
+}
 
 #endif  // SENSOR_HELPER_HPP_

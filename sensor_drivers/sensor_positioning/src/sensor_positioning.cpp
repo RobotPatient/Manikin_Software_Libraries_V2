@@ -67,6 +67,7 @@
 
 
 
+
 void PositioningSensor::SensorTest() {
   //
 }
@@ -224,15 +225,24 @@ Orientation3D PositioningSensor::GetGyroscopeInfo() {
 
   if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_GYR)) {
     /* Converting lsb to degree per second for 16 bit gyro at 2000dps range. */
-    _result.x = lsb_to_dps(sensor_data.gyr.x, (float) 2000, bmiSensor.resolution);
-    _result.y = lsb_to_dps(sensor_data.gyr.y, (float) 2000, bmiSensor.resolution);
-    _result.z = lsb_to_dps(sensor_data.gyr.z, (float) 2000, bmiSensor.resolution);
+    _result.x = lsb_to_dps(sensor_data.gyr.x, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
+    _result.y = lsb_to_dps(sensor_data.gyr.y, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
+    _result.z = lsb_to_dps(sensor_data.gyr.z, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
   }
   return _result;
 }
 
 Orientation3D PositioningSensor::GetAcceleroInfo() {
   Orientation3D _result;
+  struct bmi2_sens_data sensor_data = { { 0 } };
+  int8_t rslt = bmi2_get_sensor_data(&sensor_data, &bmiSensor);
+
+  if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_ACC)) {
+      /* Converting lsb to meter per second squared for 16 bit accelerometer at 2G range. */
+      _result.x = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+      _result.y = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+      _result.z = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+    }
   return _result;
 }
 

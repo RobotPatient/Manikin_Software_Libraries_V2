@@ -34,6 +34,10 @@
 
 inline constexpr uint8_t kBMI270Addr = 0x24;
 
+/*! Macros to select the sensors                   */
+#define ACCEL          UINT8_C(0x00)
+#define GYRO           UINT8_C(0x01)
+
 // #define USE_MAGNETOMETER // uncomment if you want to use the MAGNETOMETER too.
 
 struct dev_info {
@@ -44,6 +48,15 @@ struct dev_info {
 struct Orientation3D {
     float x, y, z;
 };
+
+typedef enum {
+    GYRO_RANGE_2000_DPS = 2000,
+} GYRO_RANGE;
+
+typedef enum {
+    ACCEL_RANGE_2G = 2,
+} ACCEL_RANGE;
+
 
 class PositioningSensor : public UniversalSensor {
 public:
