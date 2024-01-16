@@ -65,6 +65,8 @@
 // For now, we decided not to add abstractions and focus more for performance instead.
 // JK, Jan 2024
 
+
+
 void PositioningSensor::SensorTest() {
   //
 }
@@ -171,18 +173,6 @@ uint8_t PositioningSensor::InitBMI_Sensor(void) {
   return 0;
 }
 
-SensorData PositioningSensor::GetSensorData() {
-  /*
-  uint8_t distance = GetDistance();
-  sensor_data_.num_of_bytes = 1;
-  sensor_data_.buffer[0] = distance;
-  sensor_data_.sample_num++;
-  sensor_data_.sensor_id = 0x01;
-  sensor_data_.status = GetSensorRangeStatus();
-  */
-  return sensor_data_;
-}
-
 void PositioningSensor::Initialize(I2CDriver* handle) {
   i2c_handle_ = handle;
   i2c_handle_->ChangeAddress(kSensorI2CAddress_);
@@ -215,25 +205,81 @@ int8_t PositioningSensor::bmi2_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uin
   if ((reg_data == NULL) || (len == 0) || (len > 32)) {
     return -1;
   }
-  //uint8_t bytes_received;
 
   struct dev_info* dev_info = (struct dev_info*)intf_ptr;
-  //uint8_t dev_id = dev_info->dev_addr;
 
   if (dev_info->_i2c_handle_->SendByte(reg_addr) == 0) {
     dev_info->_i2c_handle_->ReadBytes(reg_data, len);
-
-    /*
-    // Optionally, throw an error if bytes_received != len
-    for (uint16_t i = 0; i < bytes_received; i++)
-    {
-      reg_data[i] = dev_info->_i2c_handle_->read();
-    }*/
   } else {
     return -1;
   }
 
   return 0;
+}
+
+Orientation3D PositioningSensor::GetGyroscopeInfo(struct bmi2_dev *dev) {
+  Orientation3D _result;
+  struct bmi2_sens_data sensor_data = { { 0 } };
+  int8_t rslt = bmi2_get_sensor_data(&sensor_data, dev);
+
+  if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_GYR)) {
+    /* Converting lsb to degree per second for 16 bit gyro at 2000dps range. */
+    _result.x = lsb_to_dps(sensor_data.gyr.x, (float) 2000, dev->resolution);
+    _result.y = lsb_to_dps(sensor_data.gyr.y, (float) 2000, dev->resolution);
+    _result.z = lsb_to_dps(sensor_data.gyr.z, (float) 2000, dev->resolution);
+  }
+  return _result;
+}
+
+Orientation3D PositioningSensor::GetAcceleroInfo() {
+  Orientation3D _result;
+  return _result;
+}
+
+Orientation3D PositioningSensor::GetMagnetoInfo() {
+  Orientation3D _result;
+  return _result;
+}
+
+/**
+      * @brief Get the data from the three different sensors (Gyroscope, Accelerometer and Magnetometer)
+      *
+      * @return Availability status
+      */
+
+SensorData PositioningSensor::GetSensorData() {
+  SensorData sensor_data_;
+
+#ifndef USE_MAGNETOMETER
+  sensor_data_.num_of_bytes = 6; // g.x/y/z; a.x/y/z
+#endif
+
+#ifdef USE_MAGNETOMETER
+  sensor_data_.num_of_bytes = 9; // g.x/y/z; a.x/y/z; m.x/y/z;
+  Orientation3D magnetOrientation = GetMagnetoInfo();
+#endif
+  Orientation3D gyroscOrientation = GetGyroscopeInfo();
+  Orientation3D accelerOrientation = GetAcceleroInfo();
+
+  sensor_data_.buffer[0] = gyroscOrientation.x;
+  sensor_data_.buffer[1] = gyroscOrientation.y;
+  sensor_data_.buffer[2] = gyroscOrientation.z;
+
+  sensor_data_.buffer[3] = accelerOrientation.x;
+  sensor_data_.buffer[4] = accelerOrientation.y;
+  sensor_data_.buffer[5] = accelerOrientation.z;
+
+#ifdef USE_MAGNETOMETER
+    sensor_data_.buffer[6] = accelerOrientation.x;
+    sensor_data_.buffer[7] = accelerOrientation.y;
+    sensor_data_.buffer[8] = accelerOrientation.z;
+#endif
+
+  sensor_data_.sample_num++;
+  sensor_data_.sensor_id = POSITIONING_SENSOR;
+  //sensor_data_.status = GetSensorRangeStatus();
+
+  return sensor_data_;
 }
 
 int8_t PositioningSensor::bmi2_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr)
@@ -280,6 +326,7 @@ int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
   sens_cfg[0].cfg.acc.odr = BMI2_ACC_ODR_100HZ;
   sens_cfg[0].cfg.acc.filter_perf = BMI2_PERF_OPT_MODE;
   sens_cfg[0].cfg.acc.range = BMI2_ACC_RANGE_4G;
+
   sens_cfg[1].type = BMI2_GYRO;
   sens_cfg[1].cfg.gyr.filter_perf = BMI2_PERF_OPT_MODE;
   sens_cfg[1].cfg.gyr.bwp = BMI2_GYR_OSR2_MODE;
@@ -302,6 +349,6 @@ int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
   rslt = bmi2_sensor_enable(sens_list, 2, dev);
   if (rslt != BMI2_OK)
     return rslt;
-  
+
   return rslt;
 }

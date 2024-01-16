@@ -34,9 +34,15 @@
 
 inline constexpr uint8_t kBMI270Addr = 0x24;
 
+// #define USE_MAGNETOMETER // uncomment if you want to use the MAGNETOMETER too.
+
 struct dev_info {
     I2CDriver *_i2c_handle_;
     uint8_t dev_addr;
+};
+
+struct Orientation3D {
+    float x, y, z;
 };
 
 class PositioningSensor : public UniversalSensor {
@@ -104,6 +110,9 @@ private:
 
     bool _initialized = false;
 
+    Orientation3D GetGyroscopeInfo(struct bmi2_dev *dev);
+    Orientation3D GetAcceleroInfo();
+    Orientation3D GetMagnetoInfo(); // (future extension BMM)
 
     //void initDefaultRead(void);
     //void readADC(uint16_t *dest);

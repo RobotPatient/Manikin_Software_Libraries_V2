@@ -29,7 +29,10 @@
 #ifndef SENSOR_HELPER_HPP
 #define SENSOR_HELPER_HPP
 
-inline constexpr uint8_t kMaxAmountOfSensorBytes = 8;
+#include <stdio.h>
+#include <math.h>
+
+inline constexpr uint8_t kMaxAmountOfSensorBytes = 9;
 /**
  * @brief Sensordata struct contains the read sensor data with samplenum and sensortype
  *
@@ -45,14 +48,28 @@ typedef struct SensorData {
 } SensorData_t;
 
 enum BareSensorType {
-    NO_SENSOR,
-    UNKNOWN_SENSOR,
-    COMPRESSION_SENSOR,
-    VENTILATION_SENSOR,
-    COMPRESSION_POSITION_SENSOR,
-    HEAD_POSITIONING_SENSOR,
-    BODY_POSITIONING_SENSOR
+    NO_SENSOR = 0xFF,
+    UNKNOWN_SENSOR = 0xF0,
+    COMPRESSION_SENSOR = 0x01,
+    VENTILATION_SENSOR = 0x02,
+    COMPRESSION_POSITION_SENSOR = 0x03,
+    POSITIONING_SENSOR = 0x04,
+    HEAD_POSITIONING_SENSOR = 0x05,
+    BODY_POSITIONING_SENSOR = 0x06
 };
+
+/*!
+ * @brief This function converts lsb to degree per second for 16 bit gyro at
+ * range 125, 250, 500, 1000 or 2000dps.
+ */
+static float lsb_to_dps(int16_t val, float dps, uint8_t bit_width)
+{
+  double power = 2;
+
+  float half_scale = (float)((pow((double)power, (double)bit_width) / 2.0f));
+
+  return (dps / (half_scale)) * (val);
+}
 
 
 #endif  // SENSOR_HELPER_HPP_
