@@ -67,7 +67,16 @@ class I2CDriver {
   void ChangeAddress(uint8_t new_i2c_address);
 
   bool SensorAvailable();
- private:
+
+  /* Adapters for Arduino name compatibility purposes */
+  bool available();
+  uint8_t write(const uint8_t data);
+  void beginTransmission(uint8_t address);
+  bool endTransmission();
+  uint8_t requestFrom(uint8_t address, uint8_t quantity);
+  uint8_t read();
+
+private:
 
   uint8_t i2c_addr_;
   I2C_PERIPHERAL_T i2c_peripheral_;
