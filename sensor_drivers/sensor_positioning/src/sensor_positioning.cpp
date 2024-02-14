@@ -259,19 +259,12 @@ Orientation3D PositioningSensor::GetAcceleroInfo() {
   int8_t rslt = bmi2_get_sensor_data(&sensor_data, &bmiSensor);
 
   if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_ACC)) {
-<<<<<<< HEAD
-    /* Converting lsb to meter per second squared for 16 bit accelerometer at 2G range. */
-    //_result.x = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
-    //_result.y = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
-    //_result.z = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
-  }
-=======
+
       /* Converting lsb to meter per second squared for 16 bit accelerometer at 2G range. */
       //_result.x = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
       //_result.y = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
       //_result.z = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
     }
->>>>>>> 019e5af (-enh Positioning Sensor development)
   return _result;
 }
 

@@ -62,7 +62,8 @@ class I2CDriver {
   uint16_t ReadReg16(uint16_t reg);
 
   void ReadBytes(uint8_t *buffer, uint8_t num_of_bytes);
-  void SendBytes(uint8_t *buffer, uint8_t num_of_bytes);
+  uint8_t SendBytes(const uint8_t *buffer, uint8_t num_of_bytes);
+  uint8_t SendByte(const uint8_t data);
   void ChangeAddress(uint8_t new_i2c_address);
 
   bool SensorAvailable();
