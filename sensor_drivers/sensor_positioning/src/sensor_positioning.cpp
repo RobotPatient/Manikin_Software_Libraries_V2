@@ -246,9 +246,9 @@ Orientation3D PositioningSensor::GetGyroscopeInfo() {
 
   if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_GYR)) {
     /* Converting lsb to degree per second for 16 bit gyro at 2000dps range. */
-    _result.x = lsb_to_dps(sensor_data.gyr.x, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
-    _result.y = lsb_to_dps(sensor_data.gyr.y, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
-    _result.z = lsb_to_dps(sensor_data.gyr.z, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
+    //_result.x = lsb_to_dps(sensor_data.gyr.x, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
+    //_result.y = lsb_to_dps(sensor_data.gyr.y, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
+    //_result.z = lsb_to_dps(sensor_data.gyr.z, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
   }
   return _result;
 }
@@ -259,11 +259,11 @@ Orientation3D PositioningSensor::GetAcceleroInfo() {
   int8_t rslt = bmi2_get_sensor_data(&sensor_data, &bmiSensor);
 
   if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_ACC)) {
-      /* Converting lsb to meter per second squared for 16 bit accelerometer at 2G range. */
-      _result.x = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
-      _result.y = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
-      _result.z = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
-    }
+    /* Converting lsb to meter per second squared for 16 bit accelerometer at 2G range. */
+    //_result.x = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+    //_result.y = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+    //_result.z = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+  }
   return _result;
 }
 
@@ -301,7 +301,7 @@ SensorData PositioningSensor::GetSensorData() {
   sensor_data_.buffer[5] = accelerOrientation.z;
 
 #ifdef USE_MAGNETOMETER
-    sensor_data_.buffer[6] = magnetOrientation.x;
+  sensor_data_.buffer[6] = magnetOrientation.x;
     sensor_data_.buffer[7] = magnetOrientation.y;
     sensor_data_.buffer[8] = magnetOrientation.z;
 #endif
@@ -341,8 +341,8 @@ void PositioningSensor::bmi2_delay_us(uint32_t period, void *intf_ptr)
 
 int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
 {
-  /*
   int8_t rslt;
+  /*
   uint8_t sens_list[2] = { BMI2_ACCEL, BMI2_GYRO };
 
   struct bmi2_int_pin_config int_pin_cfg;
@@ -383,7 +383,7 @@ int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
   if (rslt != BMI2_OK)
     return rslt;
 
-  return rslt;
-   */
 
+   */
+  return rslt;
 }
