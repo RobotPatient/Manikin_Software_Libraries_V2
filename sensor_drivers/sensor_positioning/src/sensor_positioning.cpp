@@ -5,6 +5,8 @@
  */
 
 #include "sensor_positioning.hpp"
+#include "sensor_positioning_helper.h"
+
 #include <cstring>
 #include <stdlib.h>
 
@@ -76,7 +78,7 @@ int8_t BMI270::begin()
 /// @param address I2C address of sensor
 /// @param wirePort I2C port to use for communication, defaults to Wire
 /// @return Error code (0 is success, negative is failure, positive is warning)
-int8_t BMI270::beginI2C(I2CDriver &handle, uint8_t address)
+int8_t BMI270::beginI2C(I2CDriver* handle, uint8_t address)
 {
     // Check whether address is valid option
     if(address != BMI2_I2C_PRIM_ADDR && address != BMI2_I2C_SEC_ADDR)
@@ -87,7 +89,7 @@ int8_t BMI270::beginI2C(I2CDriver &handle, uint8_t address)
 
     // Address is valid option
     interfaceData.dev_addr = address;
-    interfaceData._i2c_handle_ = &handle;
+    interfaceData._i2c_handle_ = handle;
 
     // Set interface
     sensor.intf = BMI2_I2C_INTF;
@@ -1206,6 +1208,7 @@ BMI2_INTF_RETURN_TYPE BMI270::readRegisters(uint8_t regAddress, uint8_t* dataBuf
             break;
         case BMI2_SPI_INTF:
             // return readRegistersSPI(regAddress, dataBuffer, numBytes, interfaceData);
+            return BMI2_E_INTERFACE_UNAVAILABLE;
             break;
         default:
             return BMI2_E_COM_FAIL;
@@ -1217,28 +1220,28 @@ BMI2_INTF_RETURN_TYPE BMI270::readRegisters(uint8_t regAddress, uint8_t* dataBuf
 /// @param regAddress Start address to read
 /// @param dataBuffer Buffer to store register values
 /// @param numBytes Number of bytes to read
-/// @param dev_info Pointer to interface data, see dev_info (generic for all our sensor libraries)
+/// @param interfaceData Pointer to interface data, see BMI270_InterfaceData
 /// @return Error code (0 is success, negative is failure, positive is warning)
-BMI2_INTF_RETURN_TYPE BMI270::readRegistersI2C(uint8_t regAddress, uint8_t* dataBuffer, uint32_t numBytes, dev_info* dev_info)
+BMI2_INTF_RETURN_TYPE BMI270::readRegistersI2C(uint8_t regAddress, uint8_t* dataBuffer, uint32_t numBytes, dev_info* interfaceData)
 {
-    // Jump to desired register address
-    dev_info->_i2c_handle_->beginTransmission(dev_info->dev_addr);
-    dev_info->_i2c_handle_->write(regAddress);
-    if(dev_info->_i2c_handle_->endTransmission())
-    {
-        return BMI2_E_COM_FAIL;
-    }
+  // Jump to desired register address
+  interfaceData->_i2c_handle_->beginTransmission(interfaceData->dev_addr);
+  interfaceData->_i2c_handle_->write(regAddress);
+  if(interfaceData->_i2c_handle_->endTransmission())
+  {
+    return BMI2_E_COM_FAIL;
+  }
 
-    // Read bytes from these registers
-    dev_info->_i2c_handle_->requestFrom(dev_info->dev_addr, numBytes);
+  // Read bytes from these registers
+  interfaceData->_i2c_handle_->requestFrom(interfaceData->dev_addr, numBytes);
 
-    // Store all requested bytes
-    for(uint32_t i = 0; i < numBytes && dev_info->_i2c_handle_->available(); i++)
-    {
-        dataBuffer[i] = dev_info->_i2c_handle_->read();
-    }
+  // Store all requested bytes
+  for(uint32_t i = 0; i < numBytes && interfaceData->_i2c_handle_->available(); i++)
+  {
+    dataBuffer[i] = interfaceData->_i2c_handle_->read();
+  }
 
-    return BMI2_OK;
+  return BMI2_OK;
 }
 
 /*
@@ -1300,19 +1303,21 @@ BMI2_INTF_RETURN_TYPE BMI270::writeRegisters(uint8_t regAddress, const uint8_t* 
             return BMI2_E_COM_FAIL;
             break;
     }
+
+    return BMI2_E_COM_FAIL;
 }
 
-/*
+
 /// @brief Helper function to write sensor registers over I2C
 /// @param regAddress Start address to write
 /// @param dataBuffer Buffer to store register values
 /// @param numBytes Number of bytes to write
 /// @param interfaceData Pointer to interface data, see BMI270_InterfaceData
 /// @return Error code (0 is success, negative is failure, positive is warning)
-BMI2_INTF_RETURN_TYPE BMI270::writeRegistersI2C(uint8_t regAddress, const uint8_t* dataBuffer, uint32_t numBytes, BMI270_InterfaceData* interfaceData)
+BMI2_INTF_RETURN_TYPE BMI270::writeRegistersI2C(uint8_t regAddress, const uint8_t* dataBuffer, uint32_t numBytes, dev_info* interfaceData)
 {
     // Begin transmission
-    interfaceData->_i2c_handle_->beginTransmission(interfaceData->i2cAddress);
+    interfaceData->_i2c_handle_->beginTransmission(interfaceData->dev_addr);
 
     // Write the address
     interfaceData->_i2c_handle_->write(regAddress);
@@ -1331,7 +1336,7 @@ BMI2_INTF_RETURN_TYPE BMI270::writeRegistersI2C(uint8_t regAddress, const uint8_
 
     return BMI2_OK;
 }
-*/
+
 /*
 /// @brief Helper function to write sensor registers over SPI
 /// @param regAddress Start address to write
@@ -1401,15 +1406,87 @@ float BMI270::convertRawToDegSecScalar(uint8_t gyrRange)
 }
 
 void BMI270::Initialize(I2CDriver* handle) {
+  handle->ChangeAddress(kSensorI2CAddress_);
+  if (handle->SensorAvailable()) {
+    i2c_handle_ = handle;
+    i2c_handle_->ChangeAddress(kSensorI2CAddress_);
+    int8_t status = beginI2C(handle, kSensorI2CAddress_); // InitBMI_Sensor();
 
+    sensor_data_.sample_num = 0;
+  }
+}
+
+Orientation3D BMI270::GetGyroscopeInfo() {
+  Orientation3D _result;
+  struct bmi2_sens_data sensor_data = { { 0 } };
+  int8_t rslt = bmi2_get_sensor_data(&sensor_data, &bmiSensor);
+
+  if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_GYR)) {
+    /* Converting lsb to degree per second for 16 bit gyro at 2000dps range. */
+    _result.x = lsb_to_dps(sensor_data.gyr.x, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
+    _result.y = lsb_to_dps(sensor_data.gyr.y, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
+    _result.z = lsb_to_dps(sensor_data.gyr.z, (float) GYRO_RANGE_2000_DPS, bmiSensor.resolution);
+  }
+  return _result;
+}
+
+Orientation3D BMI270::GetAcceleroInfo() {
+  Orientation3D _result;
+  struct bmi2_sens_data sensor_data = { { 0 } };
+  int8_t rslt = bmi2_get_sensor_data(&sensor_data, &bmiSensor);
+
+  if ((rslt == BMI2_OK) && (sensor_data.status & BMI2_DRDY_ACC)) {
+
+    /* Converting lsb to meter per second squared for 16 bit accelerometer at 2G range. */
+    //_result.x = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+    //_result.y = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+    //_result.z = lsb_to_mps2(sensor_data.acc.x, (float)ACCEL_RANGE_2G, bmiSensor.resolution);
+  }
+  return _result;
+}
+
+Orientation3D BMI270::GetMagnetoInfo() {
+  Orientation3D _result;
+  return _result;
 }
 
 SensorData_t BMI270::GetSensorData() {
+  SensorData sensor_data_;
 
+#ifndef USE_MAGNETOMETER
+  sensor_data_.num_of_bytes = 6; // g.x/y/z; a.x/y/z
+#endif
+
+#ifdef USE_MAGNETOMETER
+  sensor_data_.num_of_bytes = 9; // g.x/y/z; a.x/y/z; m.x/y/z;
+  Orientation3D magnetOrientation = GetMagnetoInfo();
+#endif
+  Orientation3D gyroscOrientation = GetGyroscopeInfo();
+  Orientation3D accelerOrientation = GetAcceleroInfo();
+
+  sensor_data_.buffer[0] = gyroscOrientation.x;
+  sensor_data_.buffer[1] = gyroscOrientation.y;
+  sensor_data_.buffer[2] = gyroscOrientation.z;
+
+  sensor_data_.buffer[3] = accelerOrientation.x;
+  sensor_data_.buffer[4] = accelerOrientation.y;
+  sensor_data_.buffer[5] = accelerOrientation.z;
+
+#ifdef USE_MAGNETOMETER
+  sensor_data_.buffer[6] = magnetOrientation.x;
+    sensor_data_.buffer[7] = magnetOrientation.y;
+    sensor_data_.buffer[8] = magnetOrientation.z;
+#endif
+
+  sensor_data_.sample_num++;
+  sensor_data_.sensor_id = POSITIONING_SENSOR;
+  //sensor_data_.status = GetSensorRangeStatus();
+
+  return sensor_data_;
 }
 
 const uint8_t BMI270::GetSensorType() {
-
+  return SensorType_;
 }
 
 void BMI270::Uninitialize() {
@@ -1417,5 +1494,9 @@ void BMI270::Uninitialize() {
 }
 
 const bool BMI270::Available() {
-
+  if (_initialized) {
+    return i2c_handle_->SensorAvailable();
+  } else {
+    return false;
+  }
 }

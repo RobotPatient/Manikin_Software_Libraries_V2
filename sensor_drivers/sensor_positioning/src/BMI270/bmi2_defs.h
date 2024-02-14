@@ -179,6 +179,8 @@
 #define BMI2_E_DATA_RDY_INT_FAILED                    INT8_C(-33)
 #define BMI2_E_INVALID_FOC_POSITION                   INT8_C(-34)
 
+#define BMI2_E_INTERFACE_UNAVAILABLE                  INT8_C(-35)
+
 /*! @name To define warnings for FIFO activity */
 #define BMI2_W_FIFO_EMPTY                             INT8_C(1)
 #define BMI2_W_PARTIAL_READ                           INT8_C(2)

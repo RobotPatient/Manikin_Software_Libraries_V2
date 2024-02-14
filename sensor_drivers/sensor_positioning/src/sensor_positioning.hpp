@@ -8,6 +8,15 @@
 #include <sensor_base.hpp>
 #include "BMI270/bmi270.h"
 
+
+inline constexpr uint8_t kBMI270Addr = 0x68; // either 0x68 or 0x69 (latter is with jumper closed)
+
+/*! Macros to select the sensors                   */
+#define ACCEL          UINT8_C(0x00)
+#define GYRO           UINT8_C(0x01)
+
+// #define USE_MAGNETOMETER // uncomment if you want to use the MAGNETOMETER too.
+
 // The BMI270 API distinguishes between "data" and "feature" interrupt sources.
 // This mapInterruptToPin() function does not distinguish between those sources,
 // and automatically determines whether the provided interrupt source is "data"
@@ -93,6 +102,18 @@ struct dev_info {
     uint8_t dev_addr;
 };
 
+struct Orientation3D {
+    float x, y, z;
+};
+
+typedef enum {
+    GYRO_RANGE_2000_DPS = 2000,
+} GYRO_RANGE;
+
+typedef enum {
+    ACCEL_RANGE_2G = 2,
+} ACCEL_RANGE;
+
 // Struct to hold acceleration data
 struct BMI270_SensorData
 {
@@ -158,17 +179,24 @@ class BMI270 : public UniversalSensor
         // Constructor
         BMI270();
 
+        Orientation3D GetGyroscopeInfo();
+        Orientation3D GetAcceleroInfo();
+        Orientation3D GetMagnetoInfo(); // (future extension BMM)
 
         // UniversalSensor methods:
 
-        void Initialize(I2CDriver* handle);
-        SensorData_t GetSensorData();
-        const uint8_t GetSensorType();
-        void Uninitialize();
-        const bool Available();
+        void Initialize(I2CDriver* handle) override;
+        SensorData_t GetSensorData() override;
+        const uint8_t GetSensorType() override;
+        void Uninitialize() override;
+        const bool Available() override;
+
+        ~BMI270() {
+          Uninitialize();
+        }
 
         // Sensor initialization, must specify communication interface
-        int8_t beginI2C(I2CDriver &handle, uint8_t address = BMI2_I2C_PRIM_ADDR);
+        int8_t beginI2C(I2CDriver* handle, uint8_t address = BMI2_I2C_PRIM_ADDR);
         //int8_t beginSPI(uint8_t csPin, uint32_t clockFrequency = 100000);
 
         // Sensor control
@@ -251,6 +279,18 @@ class BMI270 : public UniversalSensor
         BMI270_SensorData data;
 
     private:
+
+        const uint8_t SensorType_ = 0x03;
+        const uint8_t kSensorI2CAddress_ = kBMI270Addr;
+        I2CDriver *i2c_handle_;
+        SensorData sensor_data_{};
+
+        struct dev_info accel_gyro_dev_info;
+        // struct dev_info mag_dev_info; // for future use
+
+        struct bmi2_dev bmiSensor;
+        // struct bmm150_dev bmmSensor; // for future use
+
         // Sensor initialization, after communication interface has been selected
         int8_t begin();
 
@@ -290,6 +330,8 @@ class BMI270 : public UniversalSensor
         // Need to track the FIFO config for some FIFO functions
         uint16_t fifoConfigFlags;
         uint8_t bytesPerFIFOData;
+
+        bool _initialized = false;
 };
 
 typedef BMI270 PositioningSensor;

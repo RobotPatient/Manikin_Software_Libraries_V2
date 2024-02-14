@@ -217,7 +217,6 @@ const bool PositioningSensor::Available() {
   } else {
     return false;
   }
-
 }
 
 
