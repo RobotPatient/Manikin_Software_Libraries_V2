@@ -1971,9 +1971,6 @@ int8_t bmi2_get_regs(uint8_t reg_addr, uint8_t *data, uint16_t len, struct bmi2_
     rslt = null_ptr_check(dev);
     if ((rslt == BMI2_OK) && (data != NULL))
     {
-
-        // https://community.bosch-sensortec.com/t5/MEMS-sensors-forum/BMI270-initialization-problem-with-nRF52840/td-p/84756
-        // https://github.com/boschsensortec/BMI270-Sensor-API/blob/master/bmi270_examples/accel_gyro/accel_gyro.c
         /* Configuring reg_addr for SPI Interface */
         if (dev->intf == BMI2_SPI_INTF)
         {

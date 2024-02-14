@@ -138,7 +138,6 @@
 
 /*! @name To define success code */
 #define BMI2_OK                                       INT8_C(0)
-#define BMI2_ADDR_OK                                  UINT8_C(0x24)
 
 /* @name To define delay */
 #define BMI2_POWER_SAVE_MODE_DELAY_IN_US              UINT16_C(450)
