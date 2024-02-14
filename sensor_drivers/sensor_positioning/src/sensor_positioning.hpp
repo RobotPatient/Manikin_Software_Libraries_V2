@@ -158,6 +158,15 @@ class BMI270 : public UniversalSensor
         // Constructor
         BMI270();
 
+
+        // UniversalSensor methods:
+
+        void Initialize(I2CDriver* handle);
+        SensorData_t GetSensorData();
+        const uint8_t GetSensorType();
+        void Uninitialize();
+        const bool Available();
+
         // Sensor initialization, must specify communication interface
         int8_t beginI2C(I2CDriver &handle, uint8_t address = BMI2_I2C_PRIM_ADDR);
         //int8_t beginSPI(uint8_t csPin, uint32_t clockFrequency = 100000);

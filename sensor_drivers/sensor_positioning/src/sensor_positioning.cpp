@@ -1332,7 +1332,6 @@ BMI2_INTF_RETURN_TYPE BMI270::writeRegistersI2C(uint8_t regAddress, const uint8_
     return BMI2_OK;
 }
 */
-
 /*
 /// @brief Helper function to write sensor registers over SPI
 /// @param regAddress Start address to write
@@ -1399,4 +1398,24 @@ float BMI270::convertRawToDegSecScalar(uint8_t gyrRange)
     // BMI2_GYR_RANGE_250   | 250
     // BMI2_GYR_RANGE_125   | 125
     return ((125 * (1 << (BMI2_GYR_RANGE_125 - gyrRange))) / 32768.0);
+}
+
+void BMI270::Initialize(I2CDriver* handle) {
+
+}
+
+SensorData_t BMI270::GetSensorData() {
+
+}
+
+const uint8_t BMI270::GetSensorType() {
+
+}
+
+void BMI270::Uninitialize() {
+
+}
+
+const bool BMI270::Available() {
+
 }
