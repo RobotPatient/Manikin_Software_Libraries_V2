@@ -34,6 +34,16 @@ BMI270::BMI270()
     // Nothing to do
 }
 
+uint8_t BMI270::setAddress(uint8_t address) {
+  if(address != BMI2_I2C_PRIM_ADDR && address != BMI2_I2C_SEC_ADDR)
+  {
+    // Invalid option, don't do anything
+    return BMI2_E_INVALID_INPUT;
+  }
+  kSensorI2CAddress_ = address;
+  return BMI2_OK;
+}
+
 /// @brief Checks whether sensor is connected, initializes sensor, then sets
 /// default config parameters
 /// @return Error code (0 is success, negative is failure, positive is warning)
@@ -1224,23 +1234,13 @@ BMI2_INTF_RETURN_TYPE BMI270::readRegisters(uint8_t regAddress, uint8_t* dataBuf
 /// @return Error code (0 is success, negative is failure, positive is warning)
 BMI2_INTF_RETURN_TYPE BMI270::readRegistersI2C(uint8_t regAddress, uint8_t* dataBuffer, uint32_t numBytes, dev_info* interfaceData)
 {
-  // Jump to desired register address
-  interfaceData->_i2c_handle_->beginTransmission(interfaceData->dev_addr);
-  interfaceData->_i2c_handle_->write(regAddress);
-  if(interfaceData->_i2c_handle_->endTransmission())
-  {
+  if (numBytes == 0) {
     return BMI2_E_COM_FAIL;
   }
 
-  // Read bytes from these registers
-  interfaceData->_i2c_handle_->requestFrom(interfaceData->dev_addr, numBytes);
-
-  // Store all requested bytes
-  for(uint32_t i = 0; i < numBytes && interfaceData->_i2c_handle_->available(); i++)
-  {
-    dataBuffer[i] = interfaceData->_i2c_handle_->read();
+  for (size_t i = 0; i < numBytes; i++) {
+    dataBuffer[i] = interfaceData->_i2c_handle_->ReadReg(regAddress);
   }
-
   return BMI2_OK;
 }
 
@@ -1316,24 +1316,14 @@ BMI2_INTF_RETURN_TYPE BMI270::writeRegisters(uint8_t regAddress, const uint8_t* 
 /// @return Error code (0 is success, negative is failure, positive is warning)
 BMI2_INTF_RETURN_TYPE BMI270::writeRegistersI2C(uint8_t regAddress, const uint8_t* dataBuffer, uint32_t numBytes, dev_info* interfaceData)
 {
-    // Begin transmission
-    interfaceData->_i2c_handle_->beginTransmission(interfaceData->dev_addr);
 
-    // Write the address
-    interfaceData->_i2c_handle_->write(regAddress);
-    
     // Write all the data
     for(uint32_t i = 0; i < numBytes; i++)
     {
         interfaceData->_i2c_handle_->write(dataBuffer[i]);
     }
 
-    // End transmission
-    if(interfaceData->_i2c_handle_->endTransmission())
-    {
-        return BMI2_E_COM_FAIL;
-    }
-
+    // Maybe check state of bus just to be sure...
     return BMI2_OK;
 }
 
@@ -1408,11 +1398,19 @@ float BMI270::convertRawToDegSecScalar(uint8_t gyrRange)
 void BMI270::Initialize(I2CDriver* handle) {
   handle->ChangeAddress(kSensorI2CAddress_);
   if (handle->SensorAvailable()) {
+
     i2c_handle_ = handle;
     i2c_handle_->ChangeAddress(kSensorI2CAddress_);
-    int8_t status = beginI2C(handle, kSensorI2CAddress_); // InitBMI_Sensor();
-
+    //selfTest();
+    //int8_t status = beginI2C(handle, kSensorI2CAddress_); // InitBMI_Sensor();
     sensor_data_.sample_num = 0;
+
+    uint8_t status = beginI2C(i2c_handle_, kSensorI2CAddress_); // To do, make more flexible
+    if (status != BMI2_OK) {
+      // error
+    } else {
+      _initialized = true;
+    }
   }
 }
 

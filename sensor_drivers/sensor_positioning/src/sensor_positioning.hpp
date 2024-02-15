@@ -191,10 +191,12 @@ class BMI270 : public UniversalSensor
         void Uninitialize() override;
         const bool Available() override;
 
+
         ~BMI270() {
           Uninitialize();
         }
 
+        uint8_t setAddress(uint8_t address);
         // Sensor initialization, must specify communication interface
         int8_t beginI2C(I2CDriver* handle, uint8_t address = BMI2_I2C_PRIM_ADDR);
         //int8_t beginSPI(uint8_t csPin, uint32_t clockFrequency = 100000);
@@ -275,13 +277,15 @@ class BMI270 : public UniversalSensor
         int8_t writeAux(uint8_t addr, uint8_t* data, uint8_t numBytes);
         int8_t writeAux(uint8_t addr, uint8_t data);
 
+
+
         // Latest measurement from the sensor
         BMI270_SensorData data;
 
     private:
 
         const uint8_t SensorType_ = 0x03;
-        const uint8_t kSensorI2CAddress_ = kBMI270Addr;
+        uint8_t kSensorI2CAddress_ = kBMI270Addr;
         I2CDriver *i2c_handle_;
         SensorData sensor_data_{};
 
@@ -332,6 +336,7 @@ class BMI270 : public UniversalSensor
         uint8_t bytesPerFIFOData;
 
         bool _initialized = false;
+
 };
 
 typedef BMI270 PositioningSensor;

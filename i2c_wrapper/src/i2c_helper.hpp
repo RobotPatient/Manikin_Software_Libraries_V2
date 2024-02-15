@@ -68,13 +68,13 @@ class I2CDriver {
 
   bool SensorAvailable();
 
-  /* Adapters for Arduino name compatibility purposes */
+  /*
+   * Adapters for Arduino name compatibility purposes
+   * In future, more could be implemented.
+   */
   bool available();
   uint8_t write(const uint8_t data);
-  void beginTransmission(uint8_t address);
-  bool endTransmission();
-  uint8_t requestFrom(uint8_t address, uint8_t quantity);
-  uint8_t read();
+
 
 private:
 

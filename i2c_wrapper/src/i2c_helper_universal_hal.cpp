@@ -111,29 +111,3 @@ bool I2CDriver::available() {
 uint8_t I2CDriver::write(const uint8_t data) {
   return SendByte(data);
 }
-
-void I2CDriver::beginTransmission(uint8_t address) {
-  i2cBeginTransmission(i2c_peripheral_, i2c_addr_);
-}
-
-bool I2CDriver::endTransmission() {
-  i2cEndTransmission(i2c_peripheral_, i2c_addr_);
-
-  /*
-   *  0: success
-   *  1: busy timeout upon entering endTransmission()
-   *  2: START bit generation timeout
-   *  3: end of address transmission timeout
-   *  4: data byte transfer timeout
-   *  5: data byte transfer succeeded, busy timeout immediately after
-   *  6: timeout waiting for peripheral to clear stop bit
-   */
-}
-
-uint8_t I2CDriver::requestFrom(uint8_t address, uint8_t quantity) {
-  //
-}
-
-uint8_t I2CDriver::read() {
-  //
-}
