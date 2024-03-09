@@ -23,6 +23,6 @@ add_library(sensor_positioning sensor_drivers/sensor_positioning/src/sensor_posi
 target_include_directories(sensor_positioning PUBLIC sensor_drivers/sensor_base/src/ sensor_drivers/sensor_positioning/src/ sensor_drivers/sensor_positioning/src/BMI270/)
 target_link_libraries(sensor_positioning i2c_wrapper FreeRTOS)
 
-add_library(usb_service_protocol "usb_service_protocol/usb_service_protocol.cpp")
-target_include_directories(usb_service_protocol PUBLIC "usb_service_protocol/")
-target_link_libraries(usb_service_protocol FreeRTOS Universal_hal Universal_hal_usb)
+add_library(usb_service_protocol INTERFACE "usb_service_protocol/usb_service_protocol.hpp")
+target_include_directories(usb_service_protocol INTERFACE "usb_service_protocol")
+target_link_libraries(usb_service_protocol INTERFACE FreeRTOS Universal_hal Universal_hal_usb)
