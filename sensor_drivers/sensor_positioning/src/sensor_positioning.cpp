@@ -193,7 +193,7 @@ void PositioningSensor::Initialize(I2CDriver* handle) {
   if (handle->SensorAvailable()) {
     i2c_handle_ = handle;
     i2c_handle_->ChangeAddress(kSensorI2CAddress_);
-    int8_t status = InitBMI_Sensor();
+    InitBMI_Sensor();
     sensor_data_.sample_num = 0;
   }
 }
@@ -342,7 +342,7 @@ void PositioningSensor::bmi2_delay_us(uint32_t period, void *intf_ptr)
 
 int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
 {
-  int8_t rslt;
+  // int8_t rslt;
   /*
   uint8_t sens_list[2] = { BMI2_ACCEL, BMI2_GYRO };
 
@@ -386,5 +386,5 @@ int8_t PositioningSensor::configure_sensor(struct bmi2_dev *dev)
 
 
    */
-  return rslt;
+  return 0;
 }

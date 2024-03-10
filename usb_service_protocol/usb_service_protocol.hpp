@@ -1,5 +1,5 @@
 /* *******************************************************************************************
- * Copyright (c) 2023 by RobotPatient Simulators
+ * Copyright (c) 2024 by RobotPatient Simulators
  *
  * Authors: Victor Hogeweij
  *
@@ -25,8 +25,10 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
 ***********************************************************************************************/
+
 #ifndef USB_SERVICE_PROTOCOL_HPP
 #define USB_SERVICE_PROTOCOL_HPP
+
 #include <FreeRTOS.h>
 #include <task.h>
 #include "hal_usb_serial.h"
@@ -57,7 +59,7 @@ inline constexpr char kPrintOnNextLine[] = "\r\n";
 typedef struct {
   const char cmd_[kUSBProtoMaxAmountOfArguments];
   uint8_t num_of_args_;
-  bool stream_cmd_;
+  uint8_t stream_cmd_;
   const char* (*cmd_cb)(char** args, int num_of_args);
 } USBServiceProtocolRegisters;
 
@@ -77,8 +79,8 @@ class USBServiceProtocol {
     if (usb_serial_available(serial_inst)) {
       tud_cdc_n_write_flush(serial_inst);
       character = usb_serial_read_char(serial_inst);
-      bool last_command_was_stream_cmd = LastRegister != NULL ? LastRegister->stream_cmd_ : false;
-      bool new_character = character != kNoNewCharacter;
+      uint8_t last_command_was_stream_cmd = LastRegister != NULL ? LastRegister->stream_cmd_ : 0;
+      uint8_t new_character = character != kNoNewCharacter;
       if (new_character) {
         ParseInput(read_buffer_, character, last_command_was_stream_cmd);
       } else if (last_command_was_stream_cmd) {
@@ -154,6 +156,7 @@ class USBServiceProtocol {
     // save the pointers of the places in the string where arguments are saved :)
     *input = kStrTerminationCharacter;
     // This is the pointer to a new possible argument, not the one we found..
+    // We add one to the input to return a pointer after the NULL termination char
     return input + 1;
   }
 
@@ -170,15 +173,17 @@ class USBServiceProtocol {
     ParsedArgs Args;
     Args.argNum = 0;
     Args.argsBuffer[0] = Getarg(buffer);
-    const bool more_than_one_argument_entered = Args.argsBuffer[0] != NULL;
+    const uint8_t more_than_one_argument_entered = Args.argsBuffer[0] != NULL;
     if (more_than_one_argument_entered) {
       // There are more arguments.. Loop over the readbuffer searching for more arguments (whitespaces)
       for (uint8_t argNum = 1; argNum < kUSBProtoMaxAmountOfArguments; argNum++) {
         Args.argsBuffer[argNum] = Getarg(Args.argsBuffer[argNum - 1]);
-        if (Args.argsBuffer[argNum] == NULL)
+        if (Args.argsBuffer[argNum] == NULL) {
           break;
-        else
+        }
+        else {
           Args.argNum++;
+        }
       }
     }
     return Args;
@@ -199,10 +204,10 @@ class USBServiceProtocol {
   const char* Runcmd(char* buffer) {
     ParsedArgs args = Parsearg(buffer);
     for (uint8_t command_index = 0; command_index < NumRegisters; command_index++) {
-      const bool command_found = (strcmp(serviceProtocolRegisters[command_index].cmd_, buffer) == 0);
+      const uint8_t command_found = (strcmp(serviceProtocolRegisters[command_index].cmd_, buffer) == 0);
       if (command_found) {
-        const bool too_many_arguments = (args.argNum > serviceProtocolRegisters[command_index].num_of_args_);
-        const bool too_few_arguments = (args.argNum < serviceProtocolRegisters[command_index].num_of_args_);
+        const uint8_t too_many_arguments = (args.argNum > serviceProtocolRegisters[command_index].num_of_args_);
+        const uint8_t too_few_arguments = (args.argNum < serviceProtocolRegisters[command_index].num_of_args_);
         if (too_many_arguments) {
           return "!E Too many arguments!";
         } else if (too_few_arguments) {
@@ -234,15 +239,15 @@ class USBServiceProtocol {
  * 
  * @param read_buffer Pointer to the read_buffer containing the previous user input
  * @param character The new incoming character
- * @param last_command_was_stream_cmd Boolean indicating whether the previous ran command is a streaming command
+ * @param last_command_was_stream_cmd uint8_tean indicating whether the previous ran command is a streaming command
  */
-  inline void ParseInput(char* read_buffer, int character, const bool last_command_was_stream_cmd) {
+  inline void ParseInput(char* read_buffer, int character, const uint8_t last_command_was_stream_cmd) {
     switch (character) {
       case kBackspaceAsciiCode: {
         // Backspace means removing previous character in buffer
         // And moving the cursor back 1 position
         read_buffer[read_index] = kStrTerminationCharacter;
-        const bool buffer_not_empty = (read_index != 0);
+        const uint8_t buffer_not_empty = (read_index != 0);
         if (buffer_not_empty) {
           tud_cdc_n_write_char(serial_inst, character);
           tud_cdc_n_write_flush(serial_inst);
