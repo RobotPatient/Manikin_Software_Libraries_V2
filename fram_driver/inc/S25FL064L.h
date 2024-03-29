@@ -1,11 +1,11 @@
 /**
- * @file MB85RS2MTA.h
+ * @file S25FL064L.h
  * @author Hoog-V (hogeweyv@gmail.com)
- * @brief Basic FRAM driver for the MB85RS2MTA fram chip
+ * @brief Basic FRAM driver for the S25FL064L FLASH chip
  * @version 0.1
- * @date 2023-10-29
+ * @date 2024-03-29
  * 
- * @copyright Copyright (c) 2023 RobotPatients 
+ * @copyright Copyright (c) 2024 RobotPatients 
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"),
@@ -30,8 +30,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  * 
  */
-#ifndef MB85RS2MTA_H
-#define MB85RS2MTA_H
+#ifndef S25FL064L_H
+#define S25FL064L_H
 #include <stdint.h>
 #include <stdio.h>
 #include <hal_spi_host.h>
@@ -60,4 +60,4 @@ void fram_deinit(fram_dev_t fram_device);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-#endif // MB85RS2MTA_H
+#endif // S25FL064L_H
