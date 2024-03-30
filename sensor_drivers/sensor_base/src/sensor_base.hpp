@@ -66,6 +66,12 @@ class UniversalSensor {
     * @brief Check is sensor is available based on i2c RXNACK status
   */
   virtual const bool Available() = 0;
+
+  /**
+   * @brief Clear Sample number
+   * 
+   */
+  virtual void clear_sample_num() = 0;
 };
 
 #endif  // SENSOR_BASE_H

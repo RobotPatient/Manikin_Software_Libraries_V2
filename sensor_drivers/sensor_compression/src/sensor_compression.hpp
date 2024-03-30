@@ -134,6 +134,10 @@ class CompressionSensor : public UniversalSensor {
     Uninitialize();
   }
 
+  void clear_sample_num() {
+    sensor_data_.sample_num = 0;
+  }
+
  private:
   const uint8_t SensorType_ = 0x01;
   uint8_t sensor_i2c_address_ = kSensorAddr;

@@ -72,6 +72,7 @@ void CompressionSensor::Initialize(I2CDriver* handle) {
   i2c_handle_->ChangeAddress(sensor_i2c_address_);
   InitVL6180X();
   SetVL6180xDefautSettings();
+  i2c_handle_->WriteReg(kVl6180XSysrangeStart, 0x01);
   sensor_data_.sample_num = 0;
 }
 
@@ -179,20 +180,9 @@ void CompressionSensor::SetVL6180xDefautSettings(void) {
     */
 uint8_t CompressionSensor::GetDistance(void) {
   uint8_t distance = 0;
-  uint8_t interrupt_status = 0;
-  uint8_t timeout_counter = 0;
-
-  i2c_handle_->WriteReg(kVl6180XSysrangeStart, 0x01);
-  interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
-  while (interrupt_status != kVl6180XSysNewSampleReadyStatusOK) {
-    interrupt_status = i2c_handle_->ReadReg(kVl6180XSysNewSampleReady);
-    timeout_counter++;
-    if (timeout_counter > kMAX_SENSOR_READ_ATTEMPTS) { // Not likely but to avoid hangs...
-      return 0; // ToDo: add timeout error flag.
-    }
-  }
   distance = i2c_handle_->ReadReg(kVl6180XResultRangeVal);
   i2c_handle_->WriteReg(kVl6180XSystemInterruptClear, 0x07);
+  i2c_handle_->WriteReg(kVl6180XSysrangeStart, 0x01);
   UpdateRangeError();
   return distance;
 }
