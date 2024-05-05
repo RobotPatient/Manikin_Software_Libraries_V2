@@ -58,7 +58,7 @@
 #define INCLUDE_vTaskDelay 1
 #include <FreeRTOS.h>
 #include <task.h>
-#define sleep(ms) vTaskDelay(ms/portTICK_RATE_MS)
+#define sleep(ms) vTaskDelay(ms/portTICK_PERIOD_MS)
 #endif
 #elif _WIN32
 #include<windows.h>
