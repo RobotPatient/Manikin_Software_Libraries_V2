@@ -5,7 +5,7 @@
 #include <Wire.h>
 #define I2C_PERIPHERAL_T TwoWire*
 #else
-#include <hal_i2c_slave.h>
+#include <hal_i2c_host.h>
 #define I2C_PERIPHERAL_T i2c_periph_inst_t
 #endif
 
